@@ -24,7 +24,6 @@ const createDefaultAllAiResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "text",
-    timestamp: new Date().toISOString(),
     agent_id: "allai_agent_default",
     agent_name: "AllAi Agent",
     agent_icon: "🤖",
@@ -33,30 +32,36 @@ const createDefaultAllAiResponse = (): StreamMessage[] => [
 ];
 
 // AllAi Agent - Orchestrator handoff example
-const createAllAiAgentResponse = (): StreamMessage[] => [
+const createAllAiAgentResponse = (userMessage: string = "Create a bug report", targetAgent: string = "jiraAgent"): StreamMessage[] => {
+  const targetAgentNames = {
+    jiraAgent: "JIRA Agent",
+    confluenceAgent: "Confluence Agent", 
+    salesforceAgent: "Salesforce Agent"
+  };
+  
+  const targetAgentName = targetAgentNames[targetAgent as keyof typeof targetAgentNames] || "specialized agent";
+  
+  return [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "allai_agent_001",
     agent_name: "AllAi Agent",
     agent_icon: "🤖",
     toolName: "handoff_to_agent",
-    toolId: "tool_handoff_001",
+    toolCallId: "tool_handoff_001",
     status: "in_progress",
     authenticationType: null,
     data: {
-      action: "**Agent Handoff Analysis**\n\nAnalyzing request: *Create a bug report for the mobile login issue*",
+      action: `**Agent Handoff Analysis**\n\nAnalyzing request: *${userMessage}*`,
       description: "Determining which specialized agent should handle this request",
       logs: [
         {
-          timestamp: new Date().toISOString(),
-          type: "info",
+                type: "info",
           message: "Orchestrator analyzing user request"
         },
         {
-          timestamp: new Date().toISOString(),
-          type: "info",
+                type: "info",
           message: "Determined agent to hand off. "
         }
       ]
@@ -65,48 +70,148 @@ const createAllAiAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "allai_agent_001",
     agent_name: "AllAi Agent",
     agent_icon: "🤖",
     toolName: "handoff_to_agent",
-    toolId: "tool_handoff_001",
+    toolCallId: "tool_handoff_001", // Same toolCallId to update the same tile
     status: "completed",
     authenticationType: null,
     data: {
-      action: "**Agent Handoff Analysis**\n\n**Handoff Decision:**\n- ✅ Target Agent: JIRA Agent\n- ✅ Primary Task: Bug report creation",
-      description: "Successfully analyzed request and prepared handoff to JIRA Agent",
+      action: `**Agent Handoff**\n\n**Handoff Decision:**\n- ✅ Target Agent: ${targetAgentName}\n- ✅ Ready to transfer control`,
+      description: `Successfully analyzed request and prepared handoff to ${targetAgentName}`,
       logs: [
         {
-          timestamp: new Date().toISOString(),
           type: "info",
-          message: "Ready to transfer control to Agent"
+          message: "Orchestrator analyzing user request"
+        },
+        {
+          type: "info",
+          message: "Determined agent to hand off. "
+        },
+        {
+          type: "info",
+          message: `Preparing handoff to ${targetAgentName}`
+        },
+        {
+          type: "info",
+          message: `Ready to transfer control to ${targetAgentName}`
         }
       ]
     }
   },
+  // Text confirmation message - chunk 1
   {
     id: uuid(),
     type: "text",
-    timestamp: new Date().toISOString(),
     agent_id: "allai_agent_001",
     agent_name: "AllAi Agent",
     agent_icon: "🤖",
-    response_delta: "Handing off to specialist agent plese wait a bit."
+    response_delta: "I understand "
+  },
+  
+  // Text confirmation message - chunk 2
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_001",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "you need "
+  },
+  
+  // Text confirmation message - chunk 3
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_001",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "to "
+  },
+  
+  // Text confirmation message - chunk 4
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_001",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: `${userMessage.toLowerCase()}. `
+  },
+  
+  // Text confirmation message - chunk 5
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_001",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "Let me "
+  },
+  
+  // Text confirmation message - chunk 6
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_001",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "hand this "
+  },
+  
+  // Text confirmation message - chunk 7
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_001",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "over to "
+  },
+  
+  // Text confirmation message - chunk 8
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_001",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: `our **${targetAgentName}** `
+  },
+  
+  // Text confirmation message - chunk 9
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_001",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "who will "
+  },
+  
+  // Text confirmation message - chunk 10 (final)
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_001",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "handle this request."
   }
-];
+  ];
+};
 
 // JIRA Agent - Create issue workflow
 const createJiraAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "jira_agent_001",
     agent_name: "JIRA Agent",
     agent_icon: "📋",
     toolName: "create_issue",
-    toolId: "tool_create_issue_001",
+    toolCallId: "tool_create_issue_001",
     status: "waiting_for_authentication",
     authenticationType: "jira",
     data: {
@@ -114,13 +219,11 @@ const createJiraAgentResponse = (): StreamMessage[] => [
       description: "Creating a new bug report in the WEBAPP project",
       logs: [
         {
-          timestamp: new Date().toISOString(),
-          type: "info",
+                type: "info",
           message: "Issue creation tool call initiated"
         },
         {
-          timestamp: new Date().toISOString(),
-          type: "warning",
+                type: "warning",
           message: "JIRA authentication required to create issue"
         }
       ]
@@ -129,12 +232,11 @@ const createJiraAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "jira_agent_001",
     agent_name: "JIRA Agent",
     agent_icon: "📋",
     toolName: "create_issue",
-    toolId: "tool_create_issue_001",
+    toolCallId: "tool_create_issue_001",
     status: "waiting_user_approval",
     authenticationType: "jira",
     data: {
@@ -142,12 +244,18 @@ const createJiraAgentResponse = (): StreamMessage[] => [
       description: "Ready to create JIRA issue - pending user approval",
       logs: [
         {
-          timestamp: new Date().toISOString(),
+          type: "info",
+          message: "Issue creation tool call initiated"
+        },
+        {
+          type: "warning",
+          message: "JIRA authentication required to create issue"
+        },
+        {
           type: "info",
           message: "Successfully authenticated with JIRA"
         },
         {
-          timestamp: new Date().toISOString(),
           type: "info",
           message: "Waiting for user approval to create issue"
         }
@@ -157,12 +265,11 @@ const createJiraAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "jira_agent_001",
     agent_name: "JIRA Agent",
     agent_icon: "📋",
     toolName: "create_issue",
-    toolId: "tool_create_issue_001",
+    toolCallId: "tool_create_issue_001",
     status: "in_progress",
     authenticationType: "jira",
     data: {
@@ -170,12 +277,26 @@ const createJiraAgentResponse = (): StreamMessage[] => [
       description: "Actively creating the JIRA issue",
       logs: [
         {
-          timestamp: new Date().toISOString(),
+          type: "info",
+          message: "Issue creation tool call initiated"
+        },
+        {
+          type: "warning",
+          message: "JIRA authentication required to create issue"
+        },
+        {
+          type: "info",
+          message: "Successfully authenticated with JIRA"
+        },
+        {
+          type: "info",
+          message: "Waiting for user approval to create issue"
+        },
+        {
           type: "info",
           message: "User approved - starting issue creation"
         },
         {
-          timestamp: new Date().toISOString(),
           type: "info",
           message: "Creating issue in WEBAPP project..."
         }
@@ -185,12 +306,11 @@ const createJiraAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "jira_agent_001",
     agent_name: "JIRA Agent",
     agent_icon: "📋",
     toolName: "create_issue",
-    toolId: "tool_create_issue_001",
+    toolCallId: "tool_create_issue_001",
     status: "completed",
     authenticationType: "jira",
     data: {
@@ -198,21 +318,148 @@ const createJiraAgentResponse = (): StreamMessage[] => [
       description: "Successfully created JIRA issue",
       logs: [
         {
-          timestamp: new Date().toISOString(),
+          type: "info",
+          message: "Issue creation tool call initiated"
+        },
+        {
+          type: "warning",
+          message: "JIRA authentication required to create issue"
+        },
+        {
+          type: "info",
+          message: "Successfully authenticated with JIRA"
+        },
+        {
+          type: "info",
+          message: "Waiting for user approval to create issue"
+        },
+        {
+          type: "info",
+          message: "User approved - starting issue creation"
+        },
+        {
+          type: "info",
+          message: "Creating issue in WEBAPP project..."
+        },
+        {
+          type: "info",
+          message: "Issue created with key WEBAPP-1247"
+        },
+        {
           type: "info",
           message: "JIRA issue creation completed successfully"
         }
       ]
     }
   },
+  // Text confirmation message - chunk 1
   {
     id: uuid(),
     type: "text",
-    timestamp: new Date().toISOString(),
     agent_id: "jira_agent_001",
     agent_name: "JIRA Agent",
     agent_icon: "📋",
-    response_delta: "JIRA issue created successfully! Issue key: **WEBAPP-1247**. The bug report has been assigned to the development team."
+    response_delta: "JIRA issue "
+  },
+  
+  // Text confirmation message - chunk 2
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "jira_agent_001",
+    agent_name: "JIRA Agent",
+    agent_icon: "📋",
+    response_delta: "created successfully! "
+  },
+  
+  // Text confirmation message - chunk 3
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "jira_agent_001",
+    agent_name: "JIRA Agent",
+    agent_icon: "📋",
+    response_delta: "Issue key: "
+  },
+  
+  // Text confirmation message - chunk 4
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "jira_agent_001",
+    agent_name: "JIRA Agent",
+    agent_icon: "📋",
+    response_delta: "**WEBAPP-1247** "
+  },
+  
+  // Text confirmation message - chunk 5
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "jira_agent_001",
+    agent_name: "JIRA Agent",
+    agent_icon: "📋",
+    response_delta: "View it "
+  },
+  
+  // Text confirmation message - chunk 6
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "jira_agent_001",
+    agent_name: "JIRA Agent",
+    agent_icon: "📋",
+    response_delta: "here: "
+  },
+  
+  // Text confirmation message - chunk 7
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "jira_agent_001",
+    agent_name: "JIRA Agent",
+    agent_icon: "📋",
+    response_delta: "[https://your-company.atlassian.net/browse/WEBAPP-1247](https://your-company.atlassian.net/browse/WEBAPP-1247)\n\n"
+  },
+  
+  // Text confirmation message - chunk 8
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "jira_agent_001",
+    agent_name: "JIRA Agent",
+    agent_icon: "📋",
+    response_delta: "The bug "
+  },
+  
+  // Text confirmation message - chunk 9
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "jira_agent_001",
+    agent_name: "JIRA Agent",
+    agent_icon: "📋",
+    response_delta: "report has "
+  },
+  
+  // Text confirmation message - chunk 10
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "jira_agent_001",
+    agent_name: "JIRA Agent",
+    agent_icon: "📋",
+    response_delta: "been assigned "
+  },
+  
+  // Text confirmation message - chunk 11 (final)
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "jira_agent_001",
+    agent_name: "JIRA Agent",
+    agent_icon: "📋",
+    response_delta: "to the development team."
   }
 ];
 
@@ -221,12 +468,11 @@ const createConfluenceAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "confluence_agent_001",
     agent_name: "Confluence Agent",
     agent_icon: "📝",
     toolName: "modify_page",
-    toolId: "tool_modify_page_001",
+    toolCallId: "tool_modify_page_001",
     status: "waiting_for_authentication",
     authenticationType: "confluence",
     data: {
@@ -234,13 +480,11 @@ const createConfluenceAgentResponse = (): StreamMessage[] => [
       description: "Modifying existing Confluence page with new requirements and specifications",
       logs: [
         {
-          timestamp: new Date().toISOString(),
-          type: "info",
+                type: "info",
           message: "Tool call initiated for page modification"
         },
         {
-          timestamp: new Date().toISOString(),
-          type: "warning",
+                type: "warning",
           message: "Authentication required for Confluence workspace access"
         }
       ]
@@ -249,12 +493,11 @@ const createConfluenceAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "confluence_agent_001",
     agent_name: "Confluence Agent",
     agent_icon: "📝",
     toolName: "modify_page",
-    toolId: "tool_modify_page_001",
+    toolCallId: "tool_modify_page_001",
     status: "waiting_user_approval",
     authenticationType: "confluence",
     data: {
@@ -262,12 +505,18 @@ const createConfluenceAgentResponse = (): StreamMessage[] => [
       description: "Ready to modify Confluence page - pending user approval for the proposed changes",
       logs: [
         {
-          timestamp: new Date().toISOString(),
+          type: "info",
+          message: "Tool call initiated for page modification"
+        },
+        {
+          type: "warning",
+          message: "Authentication required for Confluence workspace access"
+        },
+        {
           type: "info",
           message: "Successfully authenticated with Confluence workspace"
         },
         {
-          timestamp: new Date().toISOString(),
           type: "info",
           message: "Waiting for user approval to proceed with page modifications"
         }
@@ -277,12 +526,11 @@ const createConfluenceAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "confluence_agent_001",
     agent_name: "Confluence Agent",
     agent_icon: "📝",
     toolName: "modify_page",
-    toolId: "tool_modify_page_001",
+    toolCallId: "tool_modify_page_001",
     status: "in_progress",
     authenticationType: "confluence",
     data: {
@@ -290,12 +538,26 @@ const createConfluenceAgentResponse = (): StreamMessage[] => [
       description: "Actively modifying the Confluence page with approved changes",
       logs: [
         {
-          timestamp: new Date().toISOString(),
+          type: "info",
+          message: "Tool call initiated for page modification"
+        },
+        {
+          type: "warning",
+          message: "Authentication required for Confluence workspace access"
+        },
+        {
+          type: "info",
+          message: "Successfully authenticated with Confluence workspace"
+        },
+        {
+          type: "info",
+          message: "Waiting for user approval to proceed with page modifications"
+        },
+        {
           type: "info",
           message: "User approved changes - starting page modification"
         },
         {
-          timestamp: new Date().toISOString(),
           type: "info",
           message: "Applying content modifications..."
         }
@@ -305,12 +567,11 @@ const createConfluenceAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "confluence_agent_001",
     agent_name: "Confluence Agent",
     agent_icon: "📝",
     toolName: "modify_page",
-    toolId: "tool_modify_page_001",
+    toolCallId: "tool_modify_page_001",
     status: "completed",
     authenticationType: "confluence",
     data: {
@@ -318,21 +579,138 @@ const createConfluenceAgentResponse = (): StreamMessage[] => [
       description: "Successfully modified the Confluence page with all requested changes",
       logs: [
         {
-          timestamp: new Date().toISOString(),
+          type: "info",
+          message: "Tool call initiated for page modification"
+        },
+        {
+          type: "warning",
+          message: "Authentication required for Confluence workspace access"
+        },
+        {
+          type: "info",
+          message: "Successfully authenticated with Confluence workspace"
+        },
+        {
+          type: "info",
+          message: "Waiting for user approval to proceed with page modifications"
+        },
+        {
+          type: "info",
+          message: "User approved changes - starting page modification"
+        },
+        {
+          type: "info",
+          message: "Applying content modifications..."
+        },
+        {
+          type: "info",
+          message: "Saved page changes successfully"
+        },
+        {
           type: "info",
           message: "Page modification completed successfully"
         }
       ]
     }
   },
+  // Text confirmation message - chunk 1
   {
     id: uuid(),
     type: "text",
-    timestamp: new Date().toISOString(),
     agent_id: "confluence_agent_001",
     agent_name: "Confluence Agent",
     agent_icon: "📝",
-    response_delta: "Confluence page updated successfully! All changes have been applied to the Product Requirements Document."
+    response_delta: "Confluence page "
+  },
+  
+  // Text confirmation message - chunk 2
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "confluence_agent_001",
+    agent_name: "Confluence Agent",
+    agent_icon: "📝",
+    response_delta: "updated successfully! "
+  },
+  
+  // Text confirmation message - chunk 3
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "confluence_agent_001",
+    agent_name: "Confluence Agent",
+    agent_icon: "📝",
+    response_delta: "Go to "
+  },
+  
+  // Text confirmation message - chunk 4
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "confluence_agent_001",
+    agent_name: "Confluence Agent",
+    agent_icon: "📝",
+    response_delta: "this link "
+  },
+  
+  // Text confirmation message - chunk 5
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "confluence_agent_001",
+    agent_name: "Confluence Agent",
+    agent_icon: "📝",
+    response_delta: "to check "
+  },
+  
+  // Text confirmation message - chunk 6
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "confluence_agent_001",
+    agent_name: "Confluence Agent",
+    agent_icon: "📝",
+    response_delta: "the changes: "
+  },
+  
+  // Text confirmation message - chunk 7
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "confluence_agent_001",
+    agent_name: "Confluence Agent",
+    agent_icon: "📝",
+    response_delta: "[https://your-company.atlassian.net/wiki/spaces/PROD/pages/123456789/Product+Requirements+Document](https://your-company.atlassian.net/wiki/spaces/PROD/pages/123456789/Product+Requirements+Document)\n\n"
+  },
+  
+  // Text confirmation message - chunk 8
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "confluence_agent_001",
+    agent_name: "Confluence Agent",
+    agent_icon: "📝",
+    response_delta: "Perfect! I've "
+  },
+  
+  // Text confirmation message - chunk 9
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "confluence_agent_001",
+    agent_name: "Confluence Agent",
+    agent_icon: "📝",
+    response_delta: "successfully updated "
+  },
+  
+  // Text confirmation message - chunk 10 (final)
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "confluence_agent_001",
+    agent_name: "Confluence Agent",
+    agent_icon: "📝",
+    response_delta: "your **Product Requirements Document**."
   }
 ];
 
@@ -341,12 +719,11 @@ const createSalesforceAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "salesforce_agent_001",
     agent_name: "Salesforce Agent",
     agent_icon: "☁️",
     toolName: "execute_soql_query",
-    toolId: "tool_soql_001",
+    toolCallId: "tool_soql_001",
     status: "waiting_for_authentication",
     authenticationType: "salesforce",
     data: {
@@ -354,13 +731,11 @@ const createSalesforceAgentResponse = (): StreamMessage[] => [
       description: "Retrieving latest opportunity records from Salesforce",
       logs: [
         {
-          timestamp: new Date().toISOString(),
-          type: "info",
+                type: "info",
           message: "SOQL query tool call initiated"
         },
         {
-          timestamp: new Date().toISOString(),
-          type: "warning",
+                type: "warning",
           message: "Salesforce authentication required to execute query"
         }
       ]
@@ -369,12 +744,11 @@ const createSalesforceAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "salesforce_agent_001",
     agent_name: "Salesforce Agent",
     agent_icon: "☁️",
     toolName: "execute_soql_query",
-    toolId: "tool_soql_001",
+    toolCallId: "tool_soql_001",
     status: "waiting_user_approval",
     authenticationType: "salesforce",
     data: {
@@ -382,13 +756,11 @@ const createSalesforceAgentResponse = (): StreamMessage[] => [
       description: "Ready to execute SOQL query - pending user approval to access Salesforce data",
       logs: [
         {
-          timestamp: new Date().toISOString(),
-          type: "info",
+                type: "info",
           message: "Successfully authenticated with Salesforce org"
         },
         {
-          timestamp: new Date().toISOString(),
-          type: "info",
+                type: "info",
           message: "Waiting for user approval to execute SOQL query"
         }
       ]
@@ -397,12 +769,11 @@ const createSalesforceAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "salesforce_agent_001",
     agent_name: "Salesforce Agent",
     agent_icon: "☁️",
     toolName: "execute_soql_query",
-    toolId: "tool_soql_001",
+    toolCallId: "tool_soql_001",
     status: "in_progress",
     authenticationType: "salesforce",
     data: {
@@ -410,13 +781,11 @@ const createSalesforceAgentResponse = (): StreamMessage[] => [
       description: "Actively executing SOQL query to retrieve latest opportunity records",
       logs: [
         {
-          timestamp: new Date().toISOString(),
-          type: "info",
+                type: "info",
           message: "User approved query - starting execution"
         },
         {
-          timestamp: new Date().toISOString(),
-          type: "info",
+                type: "info",
           message: "Executing SOQL query..."
         }
       ]
@@ -425,12 +794,11 @@ const createSalesforceAgentResponse = (): StreamMessage[] => [
   {
     id: uuid(),
     type: "tool",
-    timestamp: new Date().toISOString(),
     agent_id: "salesforce_agent_001",
     agent_name: "Salesforce Agent",
     agent_icon: "☁️",
     toolName: "execute_soql_query",
-    toolId: "tool_soql_001",
+    toolCallId: "tool_soql_001",
     status: "completed",
     authenticationType: "salesforce",
     data: {
@@ -438,42 +806,147 @@ const createSalesforceAgentResponse = (): StreamMessage[] => [
       description: "Successfully executed SOQL query and retrieved the latest opportunity records",
       logs: [
         {
-          timestamp: new Date().toISOString(),
-          type: "info",
+                type: "info",
           message: "Retrieved and formatted 5 opportunity records"
         }
       ]
     }
   },
+  // Text confirmation message - chunk 1
   {
     id: uuid(),
     type: "text",
-    timestamp: new Date().toISOString(),
     agent_id: "salesforce_agent_001",
     agent_name: "Salesforce Agent",
     agent_icon: "☁️",
-    response_delta: "Here are your five latest opportunity records from Salesforce: **1. Enterprise Software Deal** - Amount: $250,000 | Stage: Proposal/Price Quote"
+    response_delta: "Here are "
+  },
+  
+  // Text confirmation message - chunk 2
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "salesforce_agent_001",
+    agent_name: "Salesforce Agent",
+    agent_icon: "☁️",
+    response_delta: "your five "
+  },
+  
+  // Text confirmation message - chunk 3
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "salesforce_agent_001",
+    agent_name: "Salesforce Agent",
+    agent_icon: "☁️",
+    response_delta: "latest opportunity "
+  },
+  
+  // Text confirmation message - chunk 4
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "salesforce_agent_001",
+    agent_name: "Salesforce Agent",
+    agent_icon: "☁️",
+    response_delta: "records from "
+  },
+  
+  // Text confirmation message - chunk 5
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "salesforce_agent_001",
+    agent_name: "Salesforce Agent",
+    agent_icon: "☁️",
+    response_delta: "Salesforce:\n\n"
+  },
+  
+  // Text confirmation message - chunk 6
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "salesforce_agent_001",
+    agent_name: "Salesforce Agent",
+    agent_icon: "☁️",
+    response_delta: "**1. Enterprise "
+  },
+  
+  // Text confirmation message - chunk 7
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "salesforce_agent_001",
+    agent_name: "Salesforce Agent",
+    agent_icon: "☁️",
+    response_delta: "Software Deal**\n"
+  },
+  
+  // Text confirmation message - chunk 8
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "salesforce_agent_001",
+    agent_name: "Salesforce Agent",
+    agent_icon: "☁️",
+    response_delta: "Amount: $250,000 "
+  },
+  
+  // Text confirmation message - chunk 9
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "salesforce_agent_001",
+    agent_name: "Salesforce Agent",
+    agent_icon: "☁️",
+    response_delta: "| Stage: "
+  },
+  
+  // Text confirmation message - chunk 10 (final)
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "salesforce_agent_001",
+    agent_name: "Salesforce Agent",
+    agent_icon: "☁️",
+    response_delta: "Proposal/Price Quote\n\n"
   }
 ];
 
 // Agent map for routing
 export const mockAgents = {
-  allAiAgent: createAllAiAgentResponse,
+  allAiAgent: (userMessage?: string, targetAgent?: string) => createAllAiAgentResponse(userMessage, targetAgent),
   jiraAgent: createJiraAgentResponse,
   confluenceAgent: createConfluenceAgentResponse,
   salesforceAgent: createSalesforceAgentResponse,
   defaultResponse: createDefaultAllAiResponse
 };
 
-// Agent router function
+// Agent router function - Always returns AllAi orchestrator agent
 export const agentRouter = (userMessage: string): AgentFunction => {
+  const lowercaseMessage = userMessage.toLowerCase();
+  
+  // Check if any specialized agent keywords are present
+  for (const [, keywords] of Object.entries(agentMappingKeywords)) {
+    if (keywords.some(keyword => lowercaseMessage.includes(keyword))) {
+      // Return orchestrator agent that will handle handoff
+      return mockAgents.allAiAgent;
+    }
+  }
+  
+  // No keywords found, return default response
+  return mockAgents.defaultResponse;
+};
+
+// Helper function to determine target agent for handoff
+export const getTargetAgentForHandoff = (userMessage: string): keyof typeof mockAgents | null => {
   const lowercaseMessage = userMessage.toLowerCase();
   
   for (const [agentKey, keywords] of Object.entries(agentMappingKeywords)) {
     if (keywords.some(keyword => lowercaseMessage.includes(keyword))) {
-      return mockAgents[agentKey as keyof typeof mockAgents];
+      return agentKey as keyof typeof mockAgents;
     }
   }
   
-  return mockAgents.defaultResponse;
+  return null;
 };

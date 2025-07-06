@@ -12,7 +12,7 @@ export type ToolStatus =
 
 // Log entry interface
 export interface LogEntry {
-  timestamp: string; // ISO 8601 format
+  timestamp?: string; // ISO 8601 format
   type: LogLevel;
   message: string;
 }
@@ -28,7 +28,7 @@ export interface ToolData {
 export interface StreamMessage {
   id: string;
   type: "text" | "tool";
-  timestamp: string; // ISO 8601 format
+  timestamp?: string; // ISO 8601 format
   agent_id: string;
   agent_name: string;
   agent_icon: string; // URL or emoji
@@ -38,7 +38,7 @@ export interface StreamMessage {
   
   // For tool messages
   toolName?: string;
-  toolId?: string;
+  toolCallId?: string;
   status?: ToolStatus;
   authenticationType?: AuthenticationType;
   data?: ToolData;

@@ -12,15 +12,26 @@ interface AgentMessageProps {
 }
 
 export function AgentMessage({ message, className }: AgentMessageProps) {
-  // Separate tool calls and text messages
-  const toolCalls = message.chunks.filter(chunk => chunk.type === 'tool');
-  const textChunks = message.chunks.filter(chunk => chunk.type === 'text');
+  // Process chunks as they arrive - group tool chunks by toolCallId
+  const toolCallsMap = new Map();
+  const textParts: string[] = [];
+  
+  // Process each chunk in order as it arrives
+  message.chunks.forEach(chunk => {
+    if (chunk.type === 'tool' && chunk.toolCallId) {
+      // Update or add tool call - always keep the latest chunk for each toolCallId
+      toolCallsMap.set(chunk.toolCallId, chunk);
+    } else if (chunk.type === 'text' && chunk.response_delta) {
+      // Accumulate text chunks
+      textParts.push(chunk.response_delta);
+    }
+  });
+  
+  // Get unique tool calls (latest state for each toolCallId)
+  const toolCalls = Array.from(toolCallsMap.values());
   
   // Combine text chunks into final content
-  const textContent = textChunks
-    .map(chunk => chunk.response_delta)
-    .filter(Boolean)
-    .join('');
+  const textContent = textParts.join('');
 
   const getAgentIcon = (agentIcon: string) => {
     // If it's an emoji, return it directly
@@ -64,9 +75,6 @@ export function AgentMessage({ message, className }: AgentMessageProps) {
             <Badge variant="outline" className={cn("text-xs", getStatusColor(message.status))}>
               {message.status}
             </Badge>
-            <span className="text-xs text-system-neutral-55">
-              {new Date(message.timestamp).toLocaleTimeString()}
-            </span>
           </div>
 
           {/* Tool Calls */}
@@ -74,7 +82,7 @@ export function AgentMessage({ message, className }: AgentMessageProps) {
             <div className="space-y-2 mb-3">
               {toolCalls.map((toolCall) => (
                 <ToolCall
-                  key={toolCall.id}
+                  key={toolCall.toolCallId || toolCall.id}
                   message={toolCall}
                   messageId={message.id}
                 />

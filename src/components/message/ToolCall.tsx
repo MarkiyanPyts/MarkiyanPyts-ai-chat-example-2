@@ -38,46 +38,46 @@ export function ToolCall({ message, messageId, className }: ToolCallProps) {
 
   if (message.type !== 'tool' || !message.data) return null;
 
-  const { data, status, authenticationType, toolName, toolId } = message;
+  const { data, status, authenticationType, toolName, toolCallId } = message;
   
   // Provide default values for optional fields
   const safeStatus = status || 'waiting_for_authentication';
   const safeToolName = toolName || 'Unknown Tool';
-  const safeToolId = toolId || message.id;
+  const safeToolCallId = toolCallId || message.id;
 
   const getStatusIcon = (status: ToolStatus) => {
     switch (status) {
       case 'waiting_for_authentication':
-        return <Lock className="h-4 w-4 text-light-orange-60" />;
+        return <Lock className="h-3.5 w-3.5 text-light-orange-60" />;
       case 'waiting_user_approval':
-        return <Shield className="h-4 w-4 text-allai-blue-50" />;
+        return <Shield className="h-3.5 w-3.5 text-allai-blue-50" />;
       case 'in_progress':
-        return <Loader2 className="h-4 w-4 animate-spin text-allai-blue-50" />;
+        return <Loader2 className="h-3.5 w-3.5 animate-spin text-allai-blue-50" />;
       case 'completed':
-        return <CheckCircle className="h-4 w-4 text-fluor-green-40" />;
+        return <CheckCircle className="h-3.5 w-3.5 text-fluor-green-30" />;
       case 'failed':
-        return <XCircle className="h-4 w-4 text-flamingo-rose-50" />;
+        return <XCircle className="h-3.5 w-3.5 text-flamingo-rose-50" />;
       case 'user_rejected':
-        return <XCircle className="h-4 w-4 text-flamingo-rose-50" />;
+        return <XCircle className="h-3.5 w-3.5 text-flamingo-rose-50" />;
       default:
-        return <Clock className="h-4 w-4 text-system-neutral-55" />;
+        return <Clock className="h-3.5 w-3.5 text-system-neutral-55" />;
     }
   };
 
   const getStatusColor = (status: ToolStatus) => {
     switch (status) {
       case 'waiting_for_authentication':
-        return 'bg-light-orange-70 text-light-orange-40 border-light-orange-60';
+        return 'bg-light-orange-70/10 text-light-orange-40 border-light-orange-60';
       case 'waiting_user_approval':
-        return 'bg-allai-blue-90 text-allai-blue-30 border-allai-blue-50';
+        return 'bg-allai-blue-50/10 text-allai-blue-50 border-allai-blue-50';
       case 'in_progress':
-        return 'bg-allai-blue-90 text-allai-blue-30 border-allai-blue-50';
+        return 'bg-allai-blue-50/10 text-allai-blue-50 border-allai-blue-50';
       case 'completed':
-        return 'bg-fluor-green-40 text-fluor-green-20 border-fluor-green-30';
+        return 'bg-fluor-green-30/10 text-fluor-green-30 border-fluor-green-30';
       case 'failed':
-        return 'bg-flamingo-rose-70 text-flamingo-rose-30 border-flamingo-rose-50';
+        return 'bg-flamingo-rose-50/10 text-flamingo-rose-50 border-flamingo-rose-50';
       case 'user_rejected':
-        return 'bg-flamingo-rose-70 text-flamingo-rose-30 border-flamingo-rose-50';
+        return 'bg-flamingo-rose-50/10 text-flamingo-rose-50 border-flamingo-rose-50';
       default:
         return 'bg-system-neutral-90 text-system-neutral-35 border-system-neutral-80';
     }
@@ -88,40 +88,40 @@ export function ToolCall({ message, messageId, className }: ToolCallProps) {
   };
 
   const handleAuthComplete = () => {
-    updateToolStatus(messageId, safeToolId, 'in_progress');
+    updateToolStatus(messageId, safeToolCallId, 'in_progress');
     // Simulate tool execution after authentication
     setTimeout(() => {
-      simulateToolExecution(messageId, safeToolId);
+      simulateToolExecution(messageId, safeToolCallId);
     }, 1000);
   };
 
   const handleApprove = () => {
-    updateToolStatus(messageId, safeToolId, 'in_progress');
+    updateToolStatus(messageId, safeToolCallId, 'in_progress');
     // Simulate tool execution after approval
     setTimeout(() => {
-      simulateToolExecution(messageId, safeToolId);
+      simulateToolExecution(messageId, safeToolCallId);
     }, 1000);
   };
 
   const handleReject = () => {
-    updateToolStatus(messageId, safeToolId, 'user_rejected');
+    updateToolStatus(messageId, safeToolCallId, 'user_rejected');
   };
 
   const canShowActions = safeStatus === 'waiting_for_authentication' || safeStatus === 'waiting_user_approval';
 
   return (
     <>
-      <Card className={cn("mb-3 border-l-4", getStatusColor(safeStatus), className)}>
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-3">
+      <Card className={cn("mb-2 border-l-2 shadow-sm", getStatusColor(safeStatus), className)}>
+        <div className="p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-2">
               {getStatusIcon(safeStatus)}
               <div>
-                <h4 className="text-sm font-medium text-system-neutral-05">
+                <h4 className="text-xs font-medium text-system-neutral-05">
                   {safeToolName}
                 </h4>
-                <Badge variant="outline" className={cn("text-xs", getStatusColor(safeStatus))}>
-                  {safeStatus.replace('_', ' ').toUpperCase()}
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-transparent border-0 font-normal">
+                  {safeStatus.replace(/_/g, ' ')}
                 </Badge>
               </div>
             </div>
@@ -133,9 +133,9 @@ export function ToolCall({ message, messageId, className }: ToolCallProps) {
                   <Button
                     onClick={handleAuthenticate}
                     size="sm"
-                    className="bg-light-orange-60 hover:bg-light-orange-70 text-light-orange-40"
+                    className="bg-light-orange-60 hover:bg-light-orange-70 text-white"
                   >
-                    <Lock className="h-3 w-3 mr-1" />
+                    <Lock className="h-3 w-3 mr-0.5" />
                     Authenticate
                   </Button>
                 )}
@@ -145,18 +145,18 @@ export function ToolCall({ message, messageId, className }: ToolCallProps) {
                     <Button
                       onClick={handleApprove}
                       size="sm"
-                      className="bg-fluor-green-40 hover:bg-fluor-green-30 text-fluor-green-20"
+                      className="bg-fluor-green-30 hover:bg-fluor-green-40 text-white"
                     >
-                      <CheckCircle className="h-3 w-3 mr-1" />
+                      <CheckCircle className="h-3 w-3 mr-0.5" />
                       Approve
                     </Button>
                     <Button
                       onClick={handleReject}
                       size="sm"
                       variant="outline"
-                      className="border-flamingo-rose-50 text-flamingo-rose-50 hover:bg-flamingo-rose-70"
+                      className="border-flamingo-rose-50 text-flamingo-rose-50 hover:bg-flamingo-rose-50/10"
                     >
-                      <XCircle className="h-3 w-3 mr-1" />
+                      <XCircle className="h-3 w-3 mr-0.5" />
                       Reject
                     </Button>
                   </>
@@ -166,14 +166,14 @@ export function ToolCall({ message, messageId, className }: ToolCallProps) {
           </div>
 
         {/* Tool Description */}
-        <p className="text-sm text-system-neutral-55 mb-3">
+        <p className="text-xs text-system-neutral-55 mb-2">
           {data.description}
         </p>
 
         {/* Expandable Content */}
         <Accordion type="single" collapsible>
           <AccordionItem value="details" className="border-none">
-            <AccordionTrigger className="py-2 text-sm text-allai-blue-50 hover:text-allai-blue-60 hover:no-underline">
+            <AccordionTrigger className="py-1 text-xs text-allai-blue-50 hover:text-allai-blue-60 hover:no-underline">
               <span className="flex items-center space-x-2">
                 <span>View Details</span>
               </span>
@@ -182,9 +182,9 @@ export function ToolCall({ message, messageId, className }: ToolCallProps) {
               <div className="space-y-4">
                 {/* Action Details */}
                 <div>
-                  <h5 className="text-sm font-medium text-system-neutral-05 mb-2">Action</h5>
-                  <Card className="p-3 bg-system-neutral-95">
-                    <div className="text-sm text-system-neutral-05 prose prose-sm max-w-none">
+                  <h5 className="text-xs font-medium text-system-neutral-05 mb-1">Action</h5>
+                  <Card className="p-2 bg-system-neutral-95/50 border-0">
+                    <div className="text-xs text-system-neutral-05 prose prose-xs max-w-none">
                       <ReactMarkdown 
                         components={{
                           p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
@@ -201,28 +201,25 @@ export function ToolCall({ message, messageId, className }: ToolCallProps) {
                 {/* Logs */}
                 {data.logs && data.logs.length > 0 && (
                   <div>
-                    <h5 className="text-sm font-medium text-system-neutral-05 mb-2">
+                    <h5 className="text-xs font-medium text-system-neutral-05 mb-1">
                       Logs ({data.logs.length})
                     </h5>
-                    <ScrollArea className="h-32">
+                    <ScrollArea className="h-24">
                       <div className="space-y-1">
                         {data.logs.map((log, index) => (
                           <div
                             key={index}
                             className={cn(
-                              "flex items-start space-x-2 p-2 rounded text-xs",
-                              log.type === 'error' && "bg-flamingo-rose-70 text-flamingo-rose-30",
-                              log.type === 'warning' && "bg-light-orange-70 text-light-orange-40",
-                              log.type === 'info' && "bg-system-neutral-90 text-system-neutral-35"
+                              "flex items-start space-x-2 p-1.5 rounded text-xs",
+                              log.type === 'error' && "bg-flamingo-rose-50/10 text-flamingo-rose-50",
+                              log.type === 'warning' && "bg-light-orange-60/10 text-light-orange-60",
+                              log.type === 'info' && "bg-system-neutral-90/50 text-system-neutral-35"
                             )}
                           >
                             {log.type === 'error' && <AlertTriangle className="h-3 w-3 mt-0.5 flex-shrink-0" />}
                             {log.type === 'warning' && <AlertTriangle className="h-3 w-3 mt-0.5 flex-shrink-0" />}
                             <div className="flex-1 min-w-0">
                               <p className="font-mono break-words">{log.message}</p>
-                              <p className="opacity-75 mt-1">
-                                {new Date(log.timestamp).toLocaleTimeString()}
-                              </p>
                             </div>
                           </div>
                         ))}

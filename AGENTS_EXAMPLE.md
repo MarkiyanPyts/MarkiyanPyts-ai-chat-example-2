@@ -11,7 +11,7 @@ const confluenceAgent: StreamMessage[] = [
     agent_name: "Confluence Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/confluence/confluence-original.svg",
     toolName: "modify_page",
-    toolId: "tool_modify_page_001",
+    toolCallId: "tool_modify_page_001",
     status: "waiting_for_authentication",
     authenticationType: "confluence",
     data: {
@@ -41,7 +41,7 @@ const confluenceAgent: StreamMessage[] = [
     agent_name: "Confluence Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/confluence/confluence-original.svg",
     toolName: "modify_page",
-    toolId: "tool_modify_page_001",
+    toolCallId: "tool_modify_page_001",
     status: "waiting_user_approval",
     authenticationType: "confluence",
     data: {
@@ -81,7 +81,7 @@ const confluenceAgent: StreamMessage[] = [
     agent_name: "Confluence Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/confluence/confluence-original.svg",
     toolName: "modify_page",
-    toolId: "tool_modify_page_001",
+    toolCallId: "tool_modify_page_001",
     status: "in_progress",
     authenticationType: "confluence",
     data: {
@@ -136,7 +136,7 @@ const confluenceAgent: StreamMessage[] = [
     agent_name: "Confluence Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/confluence/confluence-original.svg",
     toolName: "modify_page",
-    toolId: "tool_modify_page_001",
+    toolCallId: "tool_modify_page_001",
     status: "completed",
     authenticationType: "confluence",
     data: {
@@ -319,7 +319,7 @@ const allAiAgent: StreamMessage[] = [
     agent_name: "AllAi Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/android/android-original.svg",
     toolName: "handoff_to_agent",
-    toolId: "tool_handoff_001",
+    toolCallId: "tool_handoff_001",
     status: "in_progress",
     authenticationType: null,
     data: {
@@ -354,7 +354,7 @@ const allAiAgent: StreamMessage[] = [
     agent_name: "AllAi Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/android/android-original.svg",
     toolName: "handoff_to_agent",
-    toolId: "tool_handoff_001",
+    toolCallId: "tool_handoff_001",
     status: "in_progress",
     authenticationType: null,
     data: {
@@ -399,7 +399,7 @@ const allAiAgent: StreamMessage[] = [
     agent_name: "AllAi Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/android/android-original.svg",
     toolName: "handoff_to_agent",
-    toolId: "tool_handoff_001",
+    toolCallId: "tool_handoff_001",
     status: "completed",
     authenticationType: null,
     data: {
@@ -644,7 +644,7 @@ const jiraAgent: StreamMessage[] = [
     agent_name: "JIRA Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg",
     toolName: "create_issue",
-    toolId: "tool_create_issue_001",
+    toolCallId: "tool_create_issue_001",
     status: "waiting_for_authentication",
     authenticationType: "jira",
     data: {
@@ -674,7 +674,7 @@ const jiraAgent: StreamMessage[] = [
     agent_name: "JIRA Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg",
     toolName: "create_issue",
-    toolId: "tool_create_issue_001",
+    toolCallId: "tool_create_issue_001",
     status: "waiting_user_approval",
     authenticationType: "jira",
     data: {
@@ -714,7 +714,7 @@ const jiraAgent: StreamMessage[] = [
     agent_name: "JIRA Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg",
     toolName: "create_issue",
-    toolId: "tool_create_issue_001",
+    toolCallId: "tool_create_issue_001",
     status: "in_progress",
     authenticationType: "jira",
     data: {
@@ -769,7 +769,7 @@ const jiraAgent: StreamMessage[] = [
     agent_name: "JIRA Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg",
     toolName: "create_issue",
-    toolId: "tool_create_issue_001",
+    toolCallId: "tool_create_issue_001",
     status: "completed",
     authenticationType: "jira",
     data: {
@@ -952,7 +952,7 @@ const salesforceAgent: StreamMessage[] = [
     agent_name: "Salesforce Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/salesforce/salesforce-original.svg",
     toolName: "execute_soql_query",
-    toolId: "tool_soql_001",
+    toolCallId: "tool_soql_001",
     status: "waiting_for_authentication",
     authenticationType: "salesforce",
     data: {
@@ -982,7 +982,7 @@ const salesforceAgent: StreamMessage[] = [
     agent_name: "Salesforce Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/salesforce/salesforce-original.svg",
     toolName: "execute_soql_query",
-    toolId: "tool_soql_001",
+    toolCallId: "tool_soql_001",
     status: "waiting_user_approval",
     authenticationType: "salesforce",
     data: {
@@ -1022,7 +1022,7 @@ const salesforceAgent: StreamMessage[] = [
     agent_name: "Salesforce Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/salesforce/salesforce-original.svg",
     toolName: "execute_soql_query",
-    toolId: "tool_soql_001",
+    toolCallId: "tool_soql_001",
     status: "in_progress",
     authenticationType: "salesforce",
     data: {
@@ -1077,7 +1077,7 @@ const salesforceAgent: StreamMessage[] = [
     agent_name: "Salesforce Agent",
     agent_icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/salesforce/salesforce-original.svg",
     toolName: "execute_soql_query",
-    toolId: "tool_soql_001",
+    toolCallId: "tool_soql_001",
     status: "completed",
     authenticationType: "salesforce",
     data: {

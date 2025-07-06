@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a React 19 SPA built with Vite and TypeScript, using TanStack Router for file-based routing, TanStack Query for data fetching, and shadcn/ui for UI components. The project uses ESM modules, strict TypeScript configuration, and Tailwind CSS v4.
+This is an AI Agent Chat Application built as a React 19 SPA with Vite and TypeScript. It features multiple specialized AI agents (JIRA, Confluence, Salesforce) with streaming responses, authentication flows, and tool execution capabilities. The project uses TanStack Router for file-based routing, TanStack Query for data fetching, Zustand for global state management, and shadcn/ui for UI components. The project uses ESM modules, strict TypeScript configuration, and Tailwind CSS v4.
 
 ## Development Commands
 
@@ -35,6 +35,13 @@ npx shadcn@latest add [component]  # Add shadcn/ui components
 - **Path aliases**: `@/components`, `@/lib`, `@/hooks`
 
 ### State Management
+- **Zustand** for global state management (`useChatStore`)
+  - Thread management (create, delete, rename with UUID-based IDs)
+  - Message streaming with real-time chunks
+  - Authentication flow management
+  - User approval system with trust mode
+  - Tool status tracking
+  - UI state (sidebar visibility, modal states, send blocking)
 - **TanStack Query** for server state management
 - **Query devtools** available in development
 - **QueryClient** configured at app root
@@ -48,10 +55,22 @@ npx shadcn@latest add [component]  # Add shadcn/ui components
 
 ### Key Directories
 - `src/routes/` - Route components (file-based routing)
+  - `/` - Homepage with ChatLayout
+  - `/thread/$threadId` - Individual thread view
+- `src/components/` - Reusable components
+  - `chat/` - ChatLayout component
+  - `message/` - AgentMessage, UserMessage, SendMessage, ToolCall components
+  - `modals/` - AuthPopup and approval modals
+  - `thread/` - ThreadSidebar, ThreadHeader, ThreadBody components
+  - `ui/` - shadcn/ui components
+- `src/hooks/` - Custom React hooks (useFileUpload, useMockAPI)
 - `src/lib/` - Utility functions and shared logic
-- `src/components/` - Reusable components (prepared)
-- `src/components/ui/` - shadcn/ui components (prepared)
-- `src/hooks/` - Custom React hooks (prepared)
+- `src/services/` - Agent router logic and mock services
+  - `agentRouter.ts` - Keyword-based agent routing
+  - `mock/` - Mock API and streaming simulation
+  - `mockAgents/` - Individual agent implementations
+- `src/store/` - Zustand store (`useChatStore`)
+- `src/types/` - TypeScript type definitions
 - `public/` - Static assets
 - `dist/` - Build output (git ignored)
 
@@ -110,9 +129,52 @@ The following custom colors are available:
 - Auto code splitting handled by TanStack Router
 - Animation utilities available via `tw-animate-css`
 
+## AI Agent System
+
+### Agent Architecture
+- **Agent Router** (`src/services/agentRouter.ts`) - Keyword-based routing that analyzes user messages
+- **Four Specialized Agents**:
+  - **JIRA Agent**: Issue tracking (keywords: jira, issue, bug, task, etc.)
+  - **Confluence Agent**: Documentation (keywords: confluence, page, document, wiki, etc.)
+  - **Salesforce Agent**: CRM operations (keywords: salesforce, crm, opportunity, soql, etc.)
+  - **AllAi Agent**: Default agent for unmatched requests and orchestration
+
+### Mock Streaming Implementation
+- Simulates real AI agent responses with timed chunks (1s intervals, 0.2s for text)
+- Supports authentication workflows with modal interruptions
+- Handles user approval flows with trust mode bypass
+- Tool execution simulation with success/failure states
+- Stream interruption for `waiting_for_authentication` and `waiting_user_approval` statuses
+- **isSendMessageBlocked** state variable prevents new messages during streaming
+
+### Authentication & Approval Flow
+- Service-specific authentication (JIRA, Confluence, Salesforce)
+- Trust mode for automatic approvals
+- Manual approval with action details
+- Tool execution status tracking
+- User rejection handling
+- **isUserApproved** and **isAuthenticated** state variables control stream resumption
+
+## Thread Management
+
+### Thread Features
+- Create new threads with auto-generated names
+- Rename/delete existing threads
+- UUID-based thread identification
+- Thread persistence in Zustand store
+- Sidebar toggle for mobile optimization
+
+### Message System
+- Real-time message chunk display
+- Markdown rendering support with `react-markdown`
+- Tool call status indicators
+- Stream interruption for authentication/approval
+- Typing indicator simulation
+- File upload support with preview capabilities
+
 ## Adding New Routes
 
-Create new files in `src/routes/` - the route tree will auto-generate. Follow existing patterns in `src/routes/index.tsx` and `src/routes/about.tsx`.
+Create new files in `src/routes/` - the route tree will auto-generate. Follow existing patterns in `src/routes/index.tsx` and `src/routes/thread/$threadId.tsx`.
 
 ## Adding UI Components
 
@@ -121,3 +183,38 @@ Create new files in `src/routes/` - the route tree will auto-generate. Follow ex
 3. Import and use: `import { Button } from "@/components/ui/button"`
 4. Use `cn()` utility for conditional styling
 5. Leverage Lucide React icons: `import { ChevronRight } from "lucide-react"`
+
+## Adding New Agents
+
+1. Create agent implementation in `src/services/mockAgents/`
+2. Add agent to `agentsMap` in `src/services/mock/mockStreamingService.ts`
+3. Update agent router keywords in `src/services/agentRouter.ts`
+4. Define agent-specific types in `src/types/`
+5. Test streaming behavior and authentication flows
+
+## State Management Patterns
+
+### Zustand Store Usage
+```typescript
+import { useChatStore } from '@/store/useChatStore'
+
+// Access state
+const { threads, currentThreadId, messages } = useChatStore()
+
+// Update state
+const { createThread, sendMessage, updateStreamChunk } = useChatStore()
+```
+
+### Stream Management
+- Use `isSendMessageBlocked` to prevent new messages during streaming
+- Set `isUserApproved` and `isAuthenticated` to `false` at start of tool calls
+- Handle stream interruption for authentication and approval workflows
+- Close stream when agent function call ends to resolve TanStack Query
+
+## Important Development Notes
+
+- **Never edit** `src/routeTree.gen.ts` manually - it's auto-generated
+- **Always use custom brand colors** - never use default Tailwind colors
+- **Follow streaming patterns** - respect authentication and approval interruptions
+- **Use TypeScript strictly** - all components and functions are fully typed
+- **Test agent routing** - ensure keywords properly route to correct agents

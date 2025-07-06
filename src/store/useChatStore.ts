@@ -11,7 +11,7 @@ import type {
   ToolStatus,
   FileAttachment 
 } from '@/types';
-import { agentRouter } from '@/services/mock';
+import { agentRouter, getTargetAgentForHandoff, mockAgents } from '@/services/mock';
 
 export interface ChatStore {
   // Thread management
@@ -55,17 +55,17 @@ export interface ChatStore {
   
   triggerUserApproval: (toolData: ToolData) => void;
   setUserApproved: (approved: boolean) => void;
-  rejectUserApproval: (messageId: string, toolId: string) => void;
+  rejectUserApproval: (messageId: string, toolCallId: string) => void;
   
   closeAuthModal: () => void;
   closeApprovalModal: () => void;
   
   // Stream simulation
-  simulateAgentStream: (threadId: string, agentFunction: () => StreamMessage[]) => void;
+  simulateAgentStream: (threadId: string, agentFunction: () => StreamMessage[], handoffTarget?: string | null) => void;
   
   // Tool management
-  updateToolStatus: (messageId: string, toolId: string, status: ToolStatus) => void;
-  simulateToolExecution: (messageId: string, toolId: string) => void;
+  updateToolStatus: (messageId: string, toolCallId: string, status: ToolStatus) => void;
+  simulateToolExecution: (messageId: string, toolCallId: string) => void;
 }
 
 export const useChatStore = create<ChatStore>((set, get) => ({
@@ -94,8 +94,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       id: threadId,
       name: threadName,
       messages: [],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
     };
     
     set((state) => ({
@@ -122,7 +120,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       threadCollection: {
         threads: state.threadCollection.threads.map(thread =>
           thread.id === threadId 
-            ? { ...thread, name: newName, updated_at: new Date().toISOString() }
+            ? { ...thread, name: newName }
             : thread
         )
       }
@@ -138,7 +136,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     const userMessage: UserMessage = {
       id: uuid(),
       type: "user",
-      timestamp: new Date().toISOString(),
       content,
       attachments: attachments || []
     };
@@ -151,7 +148,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
             ? {
                 ...thread,
                 messages: [...thread.messages, userMessage],
-                updated_at: new Date().toISOString()
               }
             : thread
         )
@@ -159,8 +155,17 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     }));
     
     // Route to appropriate agent and start streaming
+    const targetAgent = getTargetAgentForHandoff(content);
     const agentFunction = agentRouter(content);
-    get().simulateAgentStream(threadId, agentFunction);
+    
+    // If orchestrator is being used, create dynamic response with user message and target
+    if (targetAgent) {
+      const dynamicAllAiFunction = () => mockAgents.allAiAgent(content, targetAgent);
+      get().simulateAgentStream(threadId, dynamicAllAiFunction, targetAgent);
+    } else {
+      // Start with default response (no handoff needed)
+      get().simulateAgentStream(threadId, agentFunction);
+    }
   },
   
   addStreamChunk: (threadId: string, messageId: string, chunk: StreamMessage) => {
@@ -175,11 +180,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
                     ? {
                         ...message as AgentMessage,
                         chunks: [...(message as AgentMessage).chunks, chunk],
-                        updated_at: new Date().toISOString()
-                      }
+                              }
                     : message
                 ),
-                updated_at: new Date().toISOString()
               }
             : thread
         )
@@ -269,7 +272,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     });
   },
   
-  rejectUserApproval: (messageId: string, toolId: string) => {
+  rejectUserApproval: (messageId: string, toolCallId: string) => {
     const { activeThreadId } = get();
     if (!activeThreadId) return;
     
@@ -277,20 +280,18 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     const rejectionChunk: StreamMessage = {
       id: uuid(),
       type: "tool",
-      timestamp: new Date().toISOString(),
       agent_id: "system",
       agent_name: "System",
       agent_icon: "❌",
       toolName: "user_rejection",
-      toolId,
+      toolCallId,
       status: "user_rejected",
       data: {
         action: "**User Rejected Tool Call**",
         description: "User declined to approve this tool execution",
         logs: [
           {
-            timestamp: new Date().toISOString(),
-            type: "warning",
+                  type: "warning",
             message: "Tool call rejected by user"
           }
         ]
@@ -316,7 +317,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
   
   // Stream simulation
-  simulateAgentStream: async (threadId: string, agentFunction: () => StreamMessage[]) => {
+  simulateAgentStream: async (threadId: string, agentFunction: () => StreamMessage[], handoffTarget?: string | null) => {
     const messages = agentFunction();
     const messageId = uuid();
     
@@ -324,7 +325,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     const agentMessage: AgentMessage = {
       id: messageId,
       type: "agent",
-      timestamp: new Date().toISOString(),
       agent_id: messages[0]?.agent_id || "unknown",
       agent_name: messages[0]?.agent_name || "Unknown Agent",
       agent_icon: messages[0]?.agent_icon || "🤖",
@@ -340,7 +340,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
             ? {
                 ...thread,
                 messages: [...thread.messages, agentMessage],
-                updated_at: new Date().toISOString()
               }
             : thread
         )
@@ -393,8 +392,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       // Add chunk to stream
       get().addStreamChunk(threadId, messageId, message);
       
-      // Delay before next chunk
-      const delay = message.type === "text" ? 200 : 1000;
+      // Delay before next chunk - 200ms for text (realistic typing), 2000ms for tools
+      const delay = message.type === "text" ? 200 : 2000;
       if (i < messages.length - 1) {
         await new Promise(resolve => setTimeout(resolve, delay));
       }
@@ -402,10 +401,20 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     
     // Complete the agent message
     get().completeAgentMessage(threadId, messageId);
+    
+    // Handle orchestrator handoff if needed
+    if (handoffTarget && mockAgents[handoffTarget as keyof typeof mockAgents]) {
+      // Small delay before starting the handoff agent
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Start the specialized agent stream
+      const specializedAgentFunction = mockAgents[handoffTarget as keyof typeof mockAgents];
+      get().simulateAgentStream(threadId, specializedAgentFunction);
+    }
   },
   
   // Tool status management
-  updateToolStatus: (messageId: string, toolId: string, status: ToolStatus) => {
+  updateToolStatus: (messageId: string, toolCallId: string, status: ToolStatus) => {
     set((state) => ({
       threadCollection: {
         threads: state.threadCollection.threads.map(thread => ({
@@ -415,27 +424,25 @@ export const useChatStore = create<ChatStore>((set, get) => ({
               ? {
                   ...message as AgentMessage,
                   chunks: (message as AgentMessage).chunks.map(chunk =>
-                    chunk.type === "tool" && chunk.toolId === toolId
+                    chunk.type === "tool" && chunk.toolCallId === toolCallId
                       ? { ...chunk, status }
                       : chunk
                   ),
-                  updated_at: new Date().toISOString()
-                }
+                  }
               : message
-          ),
-          updated_at: new Date().toISOString()
+          )
         }))
       }
     }));
   },
   
-  simulateToolExecution: (messageId: string, toolId: string) => {
+  simulateToolExecution: (messageId: string, toolCallId: string) => {
     // Simulate tool execution with random success/failure
     const success = Math.random() > 0.1; // 90% success rate
     
     setTimeout(() => {
       const finalStatus = success ? 'completed' : 'failed';
-      get().updateToolStatus(messageId, toolId, finalStatus);
+      get().updateToolStatus(messageId, toolCallId, finalStatus);
     }, 2000 + Math.random() * 3000); // 2-5 second execution time
   }
 }));

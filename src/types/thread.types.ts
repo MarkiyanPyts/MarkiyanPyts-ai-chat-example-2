@@ -4,7 +4,7 @@ import { StreamMessage } from './agent.types';
 export interface UserMessage {
   id: string;
   type: "user";
-  timestamp: string; // ISO 8601 format
+  timestamp?: string; // ISO 8601 format
   content: string; // User's message content
   user_id?: string; // Optional user identifier
   user_name?: string; // Optional user display name
@@ -15,7 +15,7 @@ export interface UserMessage {
 export interface AgentMessage {
   id: string;
   type: "agent";
-  timestamp: string; // ISO 8601 format
+  timestamp?: string; // ISO 8601 format
   agent_id: string;
   agent_name: string;
   agent_icon: string; // URL or emoji
@@ -32,8 +32,8 @@ export interface Thread {
   id: string;
   name: string;
   messages: Message[];
-  created_at: string; // ISO 8601 format
-  updated_at: string; // ISO 8601 format
+  created_at?: string; // ISO 8601 format
+  updated_at?: string; // ISO 8601 format
 }
 
 // Collection of threads
