@@ -33,7 +33,7 @@ export function SendMessage({ threadId, disabled, className }: SendMessageProps)
     if (!message.trim() && attachments.length === 0) return;
     if (isDisabled) return;
 
-    await sendMessage(threadId, message.trim(), attachments);
+    sendMessage(threadId, message.trim(), attachments);
     
     // Reset form
     setMessage('');

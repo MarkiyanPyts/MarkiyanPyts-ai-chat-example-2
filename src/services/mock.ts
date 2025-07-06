@@ -868,6 +868,14 @@ const createSalesforceAgentResponse = (): StreamMessage[] => [
       logs: [
         {
                 type: "info",
+          message: "SOQL query tool call initiated"
+        },
+        {
+                type: "warning",
+          message: "Salesforce authentication required to execute query"
+        },
+        {
+                type: "info",
           message: "Successfully authenticated with Salesforce org"
         },
         {
@@ -891,6 +899,22 @@ const createSalesforceAgentResponse = (): StreamMessage[] => [
       action: "**Execute SOQL Query**\n\n**Status:**\n- 🔄 Executing query against Salesforce database\n- ⏳ Retrieving opportunity records",
       description: "Actively executing SOQL query to retrieve latest opportunity records",
       logs: [
+        {
+                type: "info",
+          message: "SOQL query tool call initiated"
+        },
+        {
+                type: "warning",
+          message: "Salesforce authentication required to execute query"
+        },
+        {
+                type: "info",
+          message: "Successfully authenticated with Salesforce org"
+        },
+        {
+                type: "info",
+          message: "Waiting for user approval to execute SOQL query"
+        },
         {
                 type: "info",
           message: "User approved query - starting execution"
@@ -918,7 +942,35 @@ const createSalesforceAgentResponse = (): StreamMessage[] => [
       logs: [
         {
                 type: "info",
+          message: "SOQL query tool call initiated"
+        },
+        {
+                type: "warning",
+          message: "Salesforce authentication required to execute query"
+        },
+        {
+                type: "info",
+          message: "Successfully authenticated with Salesforce org"
+        },
+        {
+                type: "info",
+          message: "Waiting for user approval to execute SOQL query"
+        },
+        {
+                type: "info",
+          message: "User approved query - starting execution"
+        },
+        {
+                type: "info",
+          message: "Executing SOQL query..."
+        },
+        {
+                type: "info",
           message: "Retrieved and formatted 5 opportunity records"
+        },
+        {
+                type: "info",
+          message: "SOQL query execution completed successfully"
         }
       ]
     }
