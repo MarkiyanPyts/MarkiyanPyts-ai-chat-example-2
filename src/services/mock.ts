@@ -21,13 +21,124 @@ export const agentMappingKeywords = {
 
 // Default AllAi Agent response when no keywords match
 const createDefaultAllAiResponse = (): StreamMessage[] => [
+  // Text message - chunk 1
   {
     id: uuid(),
     type: "text",
     agent_id: "allai_agent_default",
     agent_name: "AllAi Agent",
     agent_icon: "🤖",
-    response_delta: "Hello I am AllAi agent, how can I help you today?"
+    response_delta: "Hello! "
+  },
+  
+  // Text message - chunk 2
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_default",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "I am "
+  },
+  
+  // Text message - chunk 3
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_default",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "the **AllAi "
+  },
+  
+  // Text message - chunk 4
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_default",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "Agent**. "
+  },
+  
+  // Text message - chunk 5
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_default",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "How can "
+  },
+  
+  // Text message - chunk 6
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_default",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "I help "
+  },
+  
+  // Text message - chunk 7
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_default",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "you today? "
+  },
+  
+  // Text message - chunk 8
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_default",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "Try mentioning "
+  },
+  
+  // Text message - chunk 9
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_default",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "**JIRA**, "
+  },
+  
+  // Text message - chunk 10
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_default",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "**Confluence**, "
+  },
+  
+  // Text message - chunk 11 (final)
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_default",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "or **Salesforce** "
+  },
+  
+  // Text message - chunk 12 (final)
+  {
+    id: uuid(),
+    type: "text",
+    agent_id: "allai_agent_default",
+    agent_name: "AllAi Agent",
+    agent_icon: "🤖",
+    response_delta: "to get started!"
   }
 ];
 
