@@ -24,8 +24,8 @@ export function UserMessage({ message, className }: UserMessageProps) {
       <div className="flex items-start space-x-3 max-w-[85%] md:max-w-[70%]">
         <div className="flex flex-col items-end flex-1">
           {/* Message Content */}
-          <Card className="p-4 bg-allai-blue-50 border-allai-blue-60 text-system-neutral-99">
-            <div className="space-y-3">
+          <Card className="bg-allai-blue-50 border-allai-blue-60 text-system-neutral-99 gap-0 py-0">
+            <div className="p-4 space-y-3">
               {/* Text Content */}
               <p className="text-sm whitespace-pre-wrap break-words">
                 {message.content}
