@@ -392,8 +392,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       // Add chunk to stream
       get().addStreamChunk(threadId, messageId, message);
       
-      // Delay before next chunk - 200ms for text (realistic typing), 2000ms for tools
-      const delay = message.type === "text" ? 200 : 2000;
+      // Delay before next chunk - 200ms for text (realistic typing), 4000ms for tools
+      const delay = message.type === "text" ? 200 : 4000;
       if (i < messages.length - 1) {
         await new Promise(resolve => setTimeout(resolve, delay));
       }
