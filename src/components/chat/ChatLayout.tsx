@@ -60,12 +60,10 @@ export function ChatLayout({ threadId, className }: ChatLayoutProps) {
                 <span className="text-4xl">🤖</span>
               </div>
               <h1 className="text-2xl font-bold text-system-neutral-05 mb-4">
-                Welcome to AI Agent Chat
+                AllAi Chat
               </h1>
               <p className="text-system-neutral-55 mb-8">
-                Create a new thread to start chatting with our AI agents. 
-                Your messages will be automatically routed to the most appropriate agent 
-                based on your needs.
+                We present you a collection of AI agents to handle anything Salesforce and beyond.
               </p>
               <div className="space-y-6">
                 <div className="space-y-2">
