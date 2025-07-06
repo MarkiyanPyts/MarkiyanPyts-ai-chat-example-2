@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Edit3, Trash2, Settings, Shield, ShieldCheck } from 'lucide-react';
+import { Edit3, Trash2, Settings, Shield, ShieldCheck, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -23,8 +23,11 @@ export function ThreadHeader({ thread, onDelete, className }: ThreadHeaderProps)
     deleteThread,
     isTrustModeActive,
     toggleTrustMode,
-    isSendMessageBlocked
+    getCurrentThreadBlockState,
+    toggleSidebar
   } = useChatStore();
+  
+  const { isSendMessageBlocked } = getCurrentThreadBlockState();
 
   const handleStartEdit = () => {
     setIsEditing(true);
@@ -60,6 +63,15 @@ export function ThreadHeader({ thread, onDelete, className }: ThreadHeaderProps)
     <Card className={cn("border-b border-system-neutral-85 rounded-none", className)}>
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center space-x-4 flex-1">
+          {/* Mobile Hamburger Menu */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleSidebar}
+            className="md:hidden text-system-neutral-55 hover:text-system-neutral-35"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
           {/* Thread Name */}
           <div className="flex-1">
             {isEditing ? (
@@ -80,9 +92,11 @@ export function ThreadHeader({ thread, onDelete, className }: ThreadHeaderProps)
               <p className="text-sm text-system-neutral-55">
                 {thread.messages.length} messages
               </p>
-              <p className="text-sm text-system-neutral-35">
-                Updated {new Date(thread.updated_at).toLocaleString()}
-              </p>
+              {thread.updated_at && (
+                <p className="text-sm text-system-neutral-35">
+                  Updated {new Date(thread.updated_at).toLocaleString()}
+                </p>
+              )}
               {isSendMessageBlocked && (
                 <Badge variant="secondary" className="bg-light-orange-70 text-light-orange-40">
                   Agent Processing...

@@ -67,16 +67,37 @@ export function ThreadSidebar({ className }: ThreadSidebarProps) {
   };
 
   return (
-    <div className={cn(
-      "flex h-full transition-all duration-300 ease-in-out",
-      isSidebarOpen ? "w-80" : "w-12",
-      className
-    )}>
-      {/* Sidebar Content */}
-      <Card className={cn(
-        "flex flex-col h-full border-r",
-        isSidebarOpen ? "w-80" : "w-12"
+    <>
+      {/* Mobile Overlay Background */}
+      {isSidebarOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={toggleSidebar}
+        />
+      )}
+      
+      {/* Sidebar Container */}
+      <div className={cn(
+        "h-full transition-all duration-300 ease-in-out",
+        // Desktop behavior (always visible, toggles width)
+        "md:relative md:flex",
+        isSidebarOpen ? "md:w-80" : "md:w-12",
+        // Mobile behavior (overlay that slides in/out)
+        "fixed md:relative z-50 md:z-auto",
+        isSidebarOpen 
+          ? "translate-x-0" 
+          : "-translate-x-full md:translate-x-0",
+        className
       )}>
+        {/* Sidebar Content */}
+        <Card className={cn(
+          "flex flex-col h-full border-r bg-system-neutral-99",
+          // Desktop sizing
+          "md:w-auto",
+          isSidebarOpen ? "md:w-80" : "md:w-12",
+          // Mobile sizing
+          "w-80"
+        )}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           {isSidebarOpen && (
@@ -152,9 +173,11 @@ export function ThreadSidebar({ className }: ThreadSidebarProps) {
                           <p className="text-xs text-system-neutral-55 mt-1">
                             {thread.messages.length} messages
                           </p>
-                          <p className="text-xs text-system-neutral-35">
-                            {new Date(thread.updated_at).toLocaleDateString()}
-                          </p>
+                          {thread.updated_at && (
+                            <p className="text-xs text-system-neutral-35">
+                              {new Date(thread.updated_at).toLocaleDateString()}
+                            </p>
+                          )}
 
                           {/* Action Buttons */}
                           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -192,7 +215,8 @@ export function ThreadSidebar({ className }: ThreadSidebarProps) {
             </ScrollArea>
           </>
         )}
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </>
   );
 }

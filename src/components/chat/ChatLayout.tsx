@@ -17,14 +17,12 @@ export function ChatLayout({ threadId, className }: ChatLayoutProps) {
   const currentThread = threadCollection.threads.find(t => t.id === currentThreadId);
 
   return (
-    <div className={cn("flex h-dvh bg-system-neutral-99", className)}>
-      {/* Sidebar - Fixed */}
-      <div className="w-80 flex-shrink-0 h-full">
-        <ThreadSidebar />
-      </div>
+    <div className={cn("flex h-dvh bg-system-neutral-99 relative", className)}>
+      {/* Sidebar - Responsive */}
+      <ThreadSidebar />
 
       {/* Main Content - Relative container for fixed send message */}
-      <div className="flex-1 flex flex-col h-full relative">
+      <div className="flex-1 flex flex-col h-full relative w-full">
         {currentThread ? (
           <>
             {/* Thread Header */}
