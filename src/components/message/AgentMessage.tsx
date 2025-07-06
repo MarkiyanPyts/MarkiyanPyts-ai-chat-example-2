@@ -57,7 +57,7 @@ export function AgentMessage({ message, className }: AgentMessageProps) {
   };
 
   return (
-    <div className={cn("flex justify-start mb-6", className)}>
+    <div className={cn("flex justify-start mb-4", className)}>
       <div className="flex items-start space-x-3 max-w-[85%]">
         {/* Agent Avatar */}
         <Avatar className="h-8 w-8 bg-system-neutral-90 flex-shrink-0">

@@ -17,22 +17,26 @@ export function ChatLayout({ threadId, className }: ChatLayoutProps) {
   const currentThread = threadCollection.threads.find(t => t.id === currentThreadId);
 
   return (
-    <div className={cn("flex h-screen bg-system-neutral-99", className)}>
-      {/* Sidebar */}
-      <ThreadSidebar />
+    <div className={cn("flex h-dvh bg-system-neutral-99", className)}>
+      {/* Sidebar - Fixed */}
+      <div className="w-80 flex-shrink-0 h-full">
+        <ThreadSidebar />
+      </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-0">
+      {/* Main Content - Relative container for fixed send message */}
+      <div className="flex-1 flex flex-col h-full relative">
         {currentThread ? (
           <>
             {/* Thread Header */}
             <ThreadHeader thread={currentThread} className="flex-shrink-0" />
 
-            {/* Thread Body - Takes remaining space */}
+            {/* Thread Body - Takes remaining space with bottom padding for send message */}
             <ThreadBody thread={currentThread} className="flex-1 min-h-0" />
 
-            {/* Send Message - Sticky at bottom */}
-            <SendMessage threadId={currentThread.id} className="flex-shrink-0" />
+            {/* Send Message - Fixed at bottom of this container */}
+            <div className="absolute bottom-0 left-0 right-0 z-10">
+              <SendMessage threadId={currentThread.id} className="bg-system-neutral-99 border-t border-system-neutral-85" />
+            </div>
           </>
         ) : (
           /* Welcome Screen */

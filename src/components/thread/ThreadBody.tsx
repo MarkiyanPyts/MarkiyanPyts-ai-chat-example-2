@@ -24,8 +24,8 @@ export function ThreadBody({ thread, className }: ThreadBodyProps) {
   }, [thread.messages]);
 
   return (
-    <div className={cn("flex-1 flex flex-col", className)}>
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
+    <div className={cn("flex-1 flex flex-col h-full", className)}>
+      <ScrollArea ref={scrollAreaRef} className="flex-1 h-full p-4 pb-8">
         {thread.messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-12">
             <div className="w-16 h-16 bg-system-neutral-90 rounded-full flex items-center justify-center mb-4">
@@ -39,7 +39,7 @@ export function ThreadBody({ thread, className }: ThreadBodyProps) {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 pb-24">
             {thread.messages.map((message) => (
               <div key={message.id}>
                 {message.type === 'user' ? (
