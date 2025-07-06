@@ -1,6 +1,6 @@
-import { Paperclip, User } from 'lucide-react';
+import { Paperclip } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Avatar, AvatarContent, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { UserMessage as UserMessageType } from '@/types';
@@ -67,9 +67,6 @@ export function UserMessage({ message, className }: UserMessageProps) {
 
         {/* User Avatar */}
         <Avatar className="h-8 w-8 bg-system-neutral-80">
-          <AvatarContent>
-            <User className="h-4 w-4 text-system-neutral-35" />
-          </AvatarContent>
           <AvatarFallback className="bg-system-neutral-80 text-system-neutral-35">
             {message.user_name ? message.user_name.charAt(0).toUpperCase() : 'U'}
           </AvatarFallback>

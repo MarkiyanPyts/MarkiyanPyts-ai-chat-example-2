@@ -1,5 +1,5 @@
-import { ThreadCollection, Thread, Message, UserMessage } from './thread.types';
-import { StreamMessage, AuthenticationType, ToolData } from './agent.types';
+import type { ThreadCollection } from './thread.types';
+import type { StreamMessage, AuthenticationType, ToolData } from './agent.types';
 
 // Store state interface
 export interface ChatStore {

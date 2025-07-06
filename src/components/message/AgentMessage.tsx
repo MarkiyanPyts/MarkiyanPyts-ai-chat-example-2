@@ -1,5 +1,5 @@
 import ReactMarkdown from 'react-markdown';
-import { Avatar, AvatarContent, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ToolCall } from './ToolCall';
@@ -50,11 +50,8 @@ export function AgentMessage({ message, className }: AgentMessageProps) {
       <div className="flex items-start space-x-3 max-w-[85%]">
         {/* Agent Avatar */}
         <Avatar className="h-8 w-8 bg-system-neutral-90 flex-shrink-0">
-          <AvatarContent className="text-lg">
+          <AvatarFallback className="bg-system-neutral-90 text-system-neutral-35 text-lg">
             {getAgentIcon(message.agent_icon)}
-          </AvatarContent>
-          <AvatarFallback className="bg-system-neutral-90 text-system-neutral-35 text-xs">
-            {message.agent_name.charAt(0)}
           </AvatarFallback>
         </Avatar>
 
@@ -88,42 +85,43 @@ export function AgentMessage({ message, className }: AgentMessageProps) {
           {/* Text Content */}
           {textContent && (
             <Card className="p-4 bg-system-neutral-99 border-system-neutral-85">
-              <ReactMarkdown 
-                className="text-sm text-system-neutral-05 prose prose-sm max-w-none"
-                components={{
-                  p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
-                  strong: ({ children }) => <strong className="font-semibold text-allai-blue-50">{children}</strong>,
-                  em: ({ children }) => <em className="italic text-system-neutral-55">{children}</em>,
-                  code: ({ children }) => (
-                    <code className="bg-system-neutral-90 text-allai-blue-50 px-1 py-0.5 rounded text-xs font-mono">
-                      {children}
-                    </code>
-                  ),
-                  pre: ({ children }) => (
-                    <pre className="bg-system-neutral-95 p-3 rounded-lg overflow-x-auto text-xs font-mono border">
-                      {children}
-                    </pre>
-                  ),
-                  a: ({ children, href }) => (
-                    <a 
-                      href={href} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-allai-blue-50 hover:text-allai-blue-60 underline"
-                    >
-                      {children}
-                    </a>
-                  ),
-                  ul: ({ children }) => <ul className="list-disc list-inside space-y-1 mb-3">{children}</ul>,
-                  ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 mb-3">{children}</ol>,
-                  li: ({ children }) => <li className="text-sm">{children}</li>,
-                  h1: ({ children }) => <h1 className="text-lg font-semibold mb-2 text-system-neutral-05">{children}</h1>,
-                  h2: ({ children }) => <h2 className="text-base font-semibold mb-2 text-system-neutral-05">{children}</h2>,
-                  h3: ({ children }) => <h3 className="text-sm font-semibold mb-2 text-system-neutral-05">{children}</h3>,
-                }}
-              >
-                {textContent}
-              </ReactMarkdown>
+              <div className="text-sm text-system-neutral-05 prose prose-sm max-w-none">
+                <ReactMarkdown 
+                  components={{
+                    p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+                    strong: ({ children }) => <strong className="font-semibold text-allai-blue-50">{children}</strong>,
+                    em: ({ children }) => <em className="italic text-system-neutral-55">{children}</em>,
+                    code: ({ children }) => (
+                      <code className="bg-system-neutral-90 text-allai-blue-50 px-1 py-0.5 rounded text-xs font-mono">
+                        {children}
+                      </code>
+                    ),
+                    pre: ({ children }) => (
+                      <pre className="bg-system-neutral-95 p-3 rounded-lg overflow-x-auto text-xs font-mono border">
+                        {children}
+                      </pre>
+                    ),
+                    a: ({ children, href }) => (
+                      <a 
+                        href={href} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-allai-blue-50 hover:text-allai-blue-60 underline"
+                      >
+                        {children}
+                      </a>
+                    ),
+                    ul: ({ children }) => <ul className="list-disc list-inside space-y-1 mb-3">{children}</ul>,
+                    ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 mb-3">{children}</ol>,
+                    li: ({ children }) => <li className="text-sm">{children}</li>,
+                    h1: ({ children }) => <h1 className="text-lg font-semibold mb-2 text-system-neutral-05">{children}</h1>,
+                    h2: ({ children }) => <h2 className="text-base font-semibold mb-2 text-system-neutral-05">{children}</h2>,
+                    h3: ({ children }) => <h3 className="text-sm font-semibold mb-2 text-system-neutral-05">{children}</h3>,
+                  }}
+                >
+                  {textContent}
+                </ReactMarkdown>
+              </div>
 
               {/* Streaming indicator */}
               {message.status === 'streaming' && (

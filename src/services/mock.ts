@@ -1,4 +1,4 @@
-import { StreamMessage, AgentFunction } from '@/types';
+import type { StreamMessage, AgentFunction } from '@/types';
 import { v4 as uuid } from 'uuid';
 
 // Agent mapping keywords for routing

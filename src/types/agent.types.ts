@@ -1,6 +1,6 @@
 export type LogLevel = "info" | "warning" | "error";
 
-export type AuthenticationType = "confluence" | "jira" | "github" | "salesforce" | null;
+export type AuthenticationType = "confluence" | "jira" | "salesforce" | null;
 
 export type ToolStatus = 
   | "waiting_for_authentication" 
