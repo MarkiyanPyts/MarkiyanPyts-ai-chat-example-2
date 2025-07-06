@@ -8,6 +8,7 @@ import type {
   StreamMessage, 
   AuthenticationType, 
   ToolData, 
+  ToolStatus,
   FileAttachment 
 } from '@/types';
 import { agentRouter } from '@/services/mock';
@@ -61,6 +62,10 @@ export interface ChatStore {
   
   // Stream simulation
   simulateAgentStream: (threadId: string, agentFunction: () => StreamMessage[]) => void;
+  
+  // Tool management
+  updateToolStatus: (messageId: string, toolId: string, status: ToolStatus) => void;
+  simulateToolExecution: (messageId: string, toolId: string) => void;
 }
 
 export const useChatStore = create<ChatStore>((set, get) => ({
@@ -397,5 +402,40 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     
     // Complete the agent message
     get().completeAgentMessage(threadId, messageId);
+  },
+  
+  // Tool status management
+  updateToolStatus: (messageId: string, toolId: string, status: ToolStatus) => {
+    set((state) => ({
+      threadCollection: {
+        threads: state.threadCollection.threads.map(thread => ({
+          ...thread,
+          messages: thread.messages.map(message =>
+            message.id === messageId && message.type === "agent"
+              ? {
+                  ...message as AgentMessage,
+                  chunks: (message as AgentMessage).chunks.map(chunk =>
+                    chunk.type === "tool" && chunk.toolId === toolId
+                      ? { ...chunk, status }
+                      : chunk
+                  ),
+                  updated_at: new Date().toISOString()
+                }
+              : message
+          ),
+          updated_at: new Date().toISOString()
+        }))
+      }
+    }));
+  },
+  
+  simulateToolExecution: (messageId: string, toolId: string) => {
+    // Simulate tool execution with random success/failure
+    const success = Math.random() > 0.1; // 90% success rate
+    
+    setTimeout(() => {
+      const finalStatus = success ? 'completed' : 'failed';
+      get().updateToolStatus(messageId, toolId, finalStatus);
+    }, 2000 + Math.random() * 3000); // 2-5 second execution time
   }
 }));
