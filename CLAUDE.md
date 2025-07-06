@@ -63,11 +63,39 @@ npx shadcn@latest add [component]  # Add shadcn/ui components
 
 ## Styling System
 
+### Custom Brand Colors (IMPORTANT)
+**This project uses ONLY custom brand colors. Do NOT use default Tailwind colors.**
+
+The following custom colors are available:
+- **Primary Colors**: `allai-blue-*` (20, 30, 50, 55, 60, 70, 90) - Main brand blue
+- **System Neutrals**: `system-neutral-*` (05, 10, 15, 20, 25, 30, 35, 55, 65, 80, 85, 90, 95, 99)
+- **Accent Colors**:
+  - `flamingo-rose-*` (30, 50, 60, 70) - Error/destructive states
+  - `fluor-green-*` (20, 30, 40) - Success states
+  - `light-orange-*` (40, 60, 70) - Warning states
+  - `tangerine-orange-70` - Secondary accent
+- **Additional Colors**:
+  - `bronze-*` (30, 55, 65, 90)
+  - `silver-*` (30, 70, 80, 90)
+  - `gold-*` (25, 60, 75, 95)
+  - `purple-*` (45, 70, 75, 90)
+
+  for further details look at COLOR_PALETTE.md and src/styles.css
+
+**Color Usage Guidelines:**
+- Primary actions: Use `allai-blue-50` (light) / `allai-blue-60` (dark)
+- Backgrounds: Use `system-neutral-99` (light) / `system-neutral-10` (dark)
+- Text: Use `system-neutral-05` (light) / `system-neutral-95` (dark)
+- Borders: Use `system-neutral-85` (light) / `system-neutral-25` (dark)
+- Success: Use `fluor-green-*` colors
+- Errors: Use `flamingo-rose-*` colors
+- Warnings: Use `light-orange-*` colors
+
 ### Tailwind CSS v4
 - **CSS variables** for theming with `--color-*` custom properties
 - **Dark mode** using custom variant `@custom-variant dark`
 - **Radius system**: `--radius-sm/md/lg/xl` variants
-- **Complete color palette**: background, foreground, primary, secondary, muted, accent, destructive, border, input, ring, chart (5 variants), sidebar (complete set)
+- **shadcn/ui components** automatically use the mapped custom colors
 
 ### Utility Functions
 - `src/lib/utils.ts` - Core `cn()` function combining `clsx` and `tailwind-merge`
