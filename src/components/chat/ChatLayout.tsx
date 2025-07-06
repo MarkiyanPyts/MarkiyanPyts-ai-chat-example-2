@@ -49,24 +49,71 @@ export function ChatLayout({ threadId, className }: ChatLayoutProps) {
                 Your messages will be automatically routed to the most appropriate agent 
                 based on your needs.
               </p>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3 text-sm text-system-neutral-35">
-                  <span className="w-8 h-8 bg-system-neutral-90 rounded-full flex items-center justify-center">
-                    🔧
-                  </span>
-                  <span>JIRA Agent - Issue tracking and project management</span>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-3 text-sm">
+                    <span className="w-8 h-8 bg-system-neutral-90 rounded-full flex items-center justify-center">
+                      🔧
+                    </span>
+                    <span className="font-medium text-system-neutral-05">JIRA Agent</span>
+                  </div>
+                  <p className="text-xs text-system-neutral-55 ml-11">
+                    Issue tracking and project management
+                  </p>
+                  <div className="ml-11">
+                    <p className="text-xs text-system-neutral-35 mb-1">Keywords:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {["jira", "issue", "ticket", "bug", "task", "create", "report", "broken", "error", "problem"].map(keyword => (
+                        <span key={keyword} className="px-2 py-1 bg-system-neutral-90 text-system-neutral-35 rounded text-xs">
+                          {keyword}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-3 text-sm text-system-neutral-35">
-                  <span className="w-8 h-8 bg-system-neutral-90 rounded-full flex items-center justify-center">
-                    📝
-                  </span>
-                  <span>Confluence Agent - Documentation and knowledge base</span>
+
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-3 text-sm">
+                    <span className="w-8 h-8 bg-system-neutral-90 rounded-full flex items-center justify-center">
+                      📝
+                    </span>
+                    <span className="font-medium text-system-neutral-05">Confluence Agent</span>
+                  </div>
+                  <p className="text-xs text-system-neutral-55 ml-11">
+                    Documentation and knowledge management
+                  </p>
+                  <div className="ml-11">
+                    <p className="text-xs text-system-neutral-35 mb-1">Keywords:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {["confluence", "page", "document", "wiki", "update", "edit", "notes", "guide", "write"].map(keyword => (
+                        <span key={keyword} className="px-2 py-1 bg-system-neutral-90 text-system-neutral-35 rounded text-xs">
+                          {keyword}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-3 text-sm text-system-neutral-35">
-                  <span className="w-8 h-8 bg-system-neutral-90 rounded-full flex items-center justify-center">
-                    💼
-                  </span>
-                  <span>Salesforce Agent - CRM and sales management</span>
+
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-3 text-sm">
+                    <span className="w-8 h-8 bg-system-neutral-90 rounded-full flex items-center justify-center">
+                      💼
+                    </span>
+                    <span className="font-medium text-system-neutral-05">Salesforce Agent</span>
+                  </div>
+                  <p className="text-xs text-system-neutral-55 ml-11">
+                    CRM and sales operations
+                  </p>
+                  <div className="ml-11">
+                    <p className="text-xs text-system-neutral-35 mb-1">Keywords:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {["salesforce", "crm", "opportunity", "lead", "account", "sales", "customer", "soql", "query"].map(keyword => (
+                        <span key={keyword} className="px-2 py-1 bg-system-neutral-90 text-system-neutral-35 rounded text-xs">
+                          {keyword}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
