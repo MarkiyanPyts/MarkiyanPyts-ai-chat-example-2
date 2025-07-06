@@ -1,6 +1,6 @@
 import { Paperclip } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { UserMessage as UserMessageType } from '@/types';
@@ -60,9 +60,11 @@ export function UserMessage({ message, className }: UserMessageProps) {
           </Card>
 
           {/* Timestamp */}
-          <p className="text-xs text-system-neutral-55 mt-1 mr-2">
-            {new Date(message.timestamp).toLocaleTimeString()}
-          </p>
+          {message.timestamp && (
+            <p className="text-xs text-system-neutral-55 mt-1 mr-2">
+              {new Date(message.timestamp).toLocaleTimeString()}
+            </p>
+          )}
         </div>
 
         {/* User Avatar */}

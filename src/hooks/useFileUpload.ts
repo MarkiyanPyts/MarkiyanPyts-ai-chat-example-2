@@ -7,6 +7,7 @@ export interface UseFileUploadReturn {
   addFiles: (fileList: FileList) => void;
   removeFile: (fileId: string) => void;
   clearFiles: () => void;
+  uploadFile: (file: File) => Promise<FileAttachment>;
   isUploading: boolean;
 }
 
@@ -52,11 +53,31 @@ export const useFileUpload = (): UseFileUploadReturn => {
     setFiles([]);
   }, [files]);
 
+  const uploadFile = useCallback(async (file: File): Promise<FileAttachment> => {
+    setIsUploading(true);
+    
+    // Create file attachment
+    const attachment: FileAttachment = {
+      id: uuid(),
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      url: URL.createObjectURL(file) // Mock URL for preview
+    };
+
+    // Simulate upload delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    setIsUploading(false);
+    return attachment;
+  }, []);
+
   return {
     files,
     addFiles,
     removeFile,
     clearFiles,
+    uploadFile,
     isUploading
   };
 };
