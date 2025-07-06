@@ -21,9 +21,10 @@ export function SendMessage({ threadId, disabled, className }: SendMessageProps)
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { sendMessage, isSendMessageBlocked } = useChatStore();
+  const { sendMessage, getCurrentThreadBlockState } = useChatStore();
   const { uploadFile, isUploading } = useFileUpload();
-
+  
+  const { isSendMessageBlocked } = getCurrentThreadBlockState();
   const isDisabled = disabled || isSendMessageBlocked || isUploading;
 
   const handleSubmit = async (e: React.FormEvent) => {

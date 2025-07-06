@@ -20,7 +20,6 @@ export interface ChatStore {
   
   // UI state
   isSidebarOpen: boolean;
-  isSendMessageBlocked: boolean;
   isTrustModeActive: boolean;
   
   // Authentication and approval
@@ -34,8 +33,10 @@ export interface ChatStore {
   showAuthModal: boolean;
   showApprovalModal: boolean;
   
-  // Current streaming state
-  currentStreamingMessageId: string | null;
+  // Helper functions to get current thread state
+  getCurrentThreadBlockState: () => { isSendMessageBlocked: boolean; currentStreamingMessageId: string | null };
+  
+  // Actions for thread-specific state
   
   // Actions
   createThread: (threadName: string) => string;
@@ -49,7 +50,7 @@ export interface ChatStore {
   
   toggleSidebar: () => void;
   toggleTrustMode: () => void;
-  setSendMessageBlocked: (blocked: boolean) => void;
+  setThreadBlockState: (threadId: string, blocked: boolean, streamingMessageId?: string | null) => void;
   
   triggerAuthentication: (authenticationType: AuthenticationType) => void;
   setAuthenticated: (authenticated: boolean) => void;
@@ -75,7 +76,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   activeThreadId: null,
   
   isSidebarOpen: true,
-  isSendMessageBlocked: false,
   isTrustModeActive: false,
   
   isAuthenticated: false,
@@ -87,7 +87,15 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   showAuthModal: false,
   showApprovalModal: false,
   
-  currentStreamingMessageId: null,
+  // Helper functions to get current thread state
+  getCurrentThreadBlockState: () => {
+    const { threadCollection, activeThreadId } = get();
+    const currentThread = threadCollection.threads.find(t => t.id === activeThreadId);
+    return {
+      isSendMessageBlocked: currentThread?.isSendMessageBlocked ?? false,
+      currentStreamingMessageId: currentThread?.currentStreamingMessageId ?? null
+    };
+  },
   
   // Thread management actions
   createThread: (threadName: string) => {
@@ -96,6 +104,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       id: threadId,
       name: threadName,
       messages: [],
+      isSendMessageBlocked: false,
+      currentStreamingMessageId: null
     };
     
     set((state) => ({
@@ -130,7 +140,17 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
   
   setActiveThread: (threadId: string) => {
-    set({ activeThreadId: threadId });
+    set({ 
+      activeThreadId: threadId,
+      // Clear any pending auth/approval states from previous thread
+      showAuthModal: false,
+      showApprovalModal: false,
+      isAuthenticated: false,
+      isUserApproved: false,
+      isUserRejected: false,
+      currentAuthenticationType: null,
+      currentToolData: null
+    });
   },
   
   // Message actions
@@ -194,33 +214,35 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   
   completeAgentMessage: (threadId: string, messageId: string) => {
     set((state) => {
-      // Only unblock UI if this is the currently streaming message
-      const shouldUnblock = state.currentStreamingMessageId === messageId;
-      
       return {
         threadCollection: {
-          threads: state.threadCollection.threads.map(thread =>
-            thread.id === threadId
-              ? {
-                  ...thread,
-                  messages: thread.messages.map(message =>
-                    message.id === messageId && message.type === "agent"
-                      ? {
-                          ...message as AgentMessage,
-                          status: "completed" as const,
-                          final_content: (message as AgentMessage).chunks
-                            .filter(chunk => chunk.type === "text")
-                            .map(chunk => chunk.response_delta)
-                            .join("")
-                        }
-                      : message
-                  )
-                }
-              : thread
-          )
-        },
-        currentStreamingMessageId: shouldUnblock ? null : state.currentStreamingMessageId,
-        isSendMessageBlocked: shouldUnblock ? false : state.isSendMessageBlocked
+          threads: state.threadCollection.threads.map(thread => {
+            if (thread.id === threadId) {
+              // Only unblock UI if this is the currently streaming message for this thread
+              const shouldUnblock = thread.currentStreamingMessageId === messageId;
+              
+              return {
+                ...thread,
+                messages: thread.messages.map(message =>
+                  message.id === messageId && message.type === "agent"
+                    ? {
+                        ...message as AgentMessage,
+                        status: "completed" as const,
+                        final_content: (message as AgentMessage).chunks
+                          .filter(chunk => chunk.type === "text")
+                          .map(chunk => chunk.response_delta)
+                          .join("")
+                      }
+                    : message
+                ),
+                // Update thread-specific blocking state
+                currentStreamingMessageId: shouldUnblock ? null : thread.currentStreamingMessageId,
+                isSendMessageBlocked: shouldUnblock ? false : thread.isSendMessageBlocked
+              };
+            }
+            return thread;
+          })
+        }
       };
     });
   },
@@ -234,25 +256,31 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     set((state) => ({ isTrustModeActive: !state.isTrustModeActive }));
   },
   
-  setSendMessageBlocked: (blocked: boolean) => {
-    set({ isSendMessageBlocked: blocked });
+  setThreadBlockState: (threadId: string, blocked: boolean, streamingMessageId?: string | null) => {
+    set((state) => ({
+      threadCollection: {
+        threads: state.threadCollection.threads.map(thread =>
+          thread.id === threadId
+            ? {
+                ...thread,
+                isSendMessageBlocked: blocked,
+                currentStreamingMessageId: streamingMessageId ?? thread.currentStreamingMessageId
+              }
+            : thread
+        )
+      }
+    }));
   },
   
   // Authentication actions
   triggerAuthentication: (authenticationType: AuthenticationType) => {
-    const { isTrustModeActive } = get();
-    
-    if (isTrustModeActive) {
-      // Auto-authenticate if trust mode is active
-      set({ isAuthenticated: true });
-    } else {
-      // Show authentication modal
-      set({
-        currentAuthenticationType: authenticationType,
-        showAuthModal: true,
-        isAuthenticated: false
-      });
-    }
+    // Always require authentication, regardless of trust mode
+    // Trust mode only affects user approval, not authentication
+    set({
+      currentAuthenticationType: authenticationType,
+      showAuthModal: true,
+      isAuthenticated: false
+    });
   },
   
   setAuthenticated: (authenticated: boolean) => {
@@ -348,7 +376,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       status: "streaming"
     };
     
-    // Add agent message to thread
+    // Add agent message to thread and set thread-specific blocking state
     set((state) => ({
       threadCollection: {
         threads: state.threadCollection.threads.map(thread =>
@@ -356,19 +384,18 @@ export const useChatStore = create<ChatStore>((set, get) => ({
             ? {
                 ...thread,
                 messages: [...thread.messages, agentMessage],
+                currentStreamingMessageId: messageId,
+                isSendMessageBlocked: true
               }
             : thread
         )
-      },
-      currentStreamingMessageId: messageId,
-      isSendMessageBlocked: true
+      }
     }));
     
     // Reset authentication and approval states for new stream
-    // But preserve authentication if trust mode is active
-    const { isTrustModeActive } = get();
+    // Authentication is always required, only approval can be skipped in trust mode
     set({
-      isAuthenticated: isTrustModeActive, // Keep authenticated if trust mode is on
+      isAuthenticated: false,
       isUserApproved: false,
       isUserRejected: false
     });

@@ -1,4 +1,4 @@
-import { StreamMessage } from './agent.types';
+import type { StreamMessage } from './agent.types';
 
 // User message interface
 export interface UserMessage {
@@ -34,6 +34,9 @@ export interface Thread {
   messages: Message[];
   created_at?: string; // ISO 8601 format
   updated_at?: string; // ISO 8601 format
+  // Thread-specific UI state
+  isSendMessageBlocked?: boolean;
+  currentStreamingMessageId?: string | null;
 }
 
 // Collection of threads
