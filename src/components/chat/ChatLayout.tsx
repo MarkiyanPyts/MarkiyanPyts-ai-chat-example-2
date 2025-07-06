@@ -22,17 +22,17 @@ export function ChatLayout({ threadId, className }: ChatLayoutProps) {
       <ThreadSidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         {currentThread ? (
           <>
             {/* Thread Header */}
-            <ThreadHeader thread={currentThread} />
+            <ThreadHeader thread={currentThread} className="flex-shrink-0" />
 
-            {/* Thread Body */}
-            <ThreadBody thread={currentThread} />
+            {/* Thread Body - Takes remaining space */}
+            <ThreadBody thread={currentThread} className="flex-1 min-h-0" />
 
-            {/* Send Message */}
-            <SendMessage threadId={currentThread.id} />
+            {/* Send Message - Sticky at bottom */}
+            <SendMessage threadId={currentThread.id} className="flex-shrink-0" />
           </>
         ) : (
           /* Welcome Screen */
