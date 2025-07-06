@@ -21,7 +21,7 @@ export function UserMessage({ message, className }: UserMessageProps) {
 
   return (
     <div className={cn("flex justify-end mb-6", className)}>
-      <div className="flex items-start space-x-3 max-w-[70%]">
+      <div className="flex items-start space-x-3 max-w-[85%] md:max-w-[70%]">
         <div className="flex flex-col items-end flex-1">
           {/* Message Content */}
           <Card className="p-4 bg-allai-blue-50 border-allai-blue-60 text-system-neutral-99">

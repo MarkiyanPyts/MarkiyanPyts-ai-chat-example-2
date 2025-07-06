@@ -58,7 +58,7 @@ export function AgentMessage({ message, className }: AgentMessageProps) {
 
   return (
     <div className={cn("flex justify-start mb-4", className)}>
-      <div className="flex items-start space-x-3 max-w-[85%]">
+      <div className="flex items-start space-x-3 max-w-[95%] md:max-w-[85%]">
         {/* Agent Avatar */}
         <Avatar className="h-8 w-8 bg-system-neutral-90 flex-shrink-0">
           <AvatarFallback className="bg-system-neutral-90 text-system-neutral-35 text-lg">
@@ -92,11 +92,11 @@ export function AgentMessage({ message, className }: AgentMessageProps) {
 
           {/* Text Content */}
           {textContent && (
-            <Card className="p-4 bg-system-neutral-99 border-system-neutral-85">
-              <div className="text-sm text-system-neutral-05 prose prose-sm max-w-none">
+            <Card className="p-4 bg-system-neutral-99 border-system-neutral-85 gap-0 py-0 overflow-hidden">
+              <div className="text-sm text-system-neutral-05 prose prose-sm max-w-none break-words overflow-hidden">
                 <ReactMarkdown 
                   components={{
-                    p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+                    p: ({ children }) => <p className="mb-3 last:mb-0 break-words overflow-hidden">{children}</p>,
                     strong: ({ children }) => <strong className="font-semibold text-allai-blue-50">{children}</strong>,
                     em: ({ children }) => <em className="italic text-system-neutral-55">{children}</em>,
                     code: ({ children }) => (
@@ -105,7 +105,7 @@ export function AgentMessage({ message, className }: AgentMessageProps) {
                       </code>
                     ),
                     pre: ({ children }) => (
-                      <pre className="bg-system-neutral-95 p-3 rounded-lg overflow-x-auto text-xs font-mono border">
+                      <pre className="bg-system-neutral-95 p-3 rounded-lg overflow-x-auto text-xs font-mono border break-all">
                         {children}
                       </pre>
                     ),
@@ -114,7 +114,7 @@ export function AgentMessage({ message, className }: AgentMessageProps) {
                         href={href} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-allai-blue-50 hover:text-allai-blue-60 underline"
+                        className="text-allai-blue-50 hover:text-allai-blue-60 underline break-all overflow-hidden"
                       >
                         {children}
                       </a>
