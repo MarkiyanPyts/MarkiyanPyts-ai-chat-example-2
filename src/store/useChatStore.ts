@@ -26,6 +26,7 @@ export interface ChatStore {
   // Authentication and approval
   isAuthenticated: boolean;
   isUserApproved: boolean;
+  isUserRejected: boolean;
   currentAuthenticationType: AuthenticationType;
   currentToolData: ToolData | null;
   
@@ -79,6 +80,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   
   isAuthenticated: false,
   isUserApproved: false,
+  isUserRejected: false,
   currentAuthenticationType: null,
   currentToolData: null,
   
@@ -317,7 +319,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     set({
       showApprovalModal: false,
       currentToolData: null,
-      isUserApproved: false
+      isUserApproved: false,
+      isUserRejected: true
     });
   },
   
@@ -366,7 +369,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     const { isTrustModeActive } = get();
     set({
       isAuthenticated: isTrustModeActive, // Keep authenticated if trust mode is on
-      isUserApproved: false
+      isUserApproved: false,
+      isUserRejected: false
     });
     
     // Stream messages with delays
@@ -412,7 +416,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           const maxAttempts = 600; // 60 seconds max wait (increased for user interaction)
           
           const checkApproval = () => {
-            if (get().isUserApproved) {
+            const { isUserApproved, isUserRejected } = get();
+            if (isUserApproved || isUserRejected) {
+              // User made a decision (approve or reject) - continue
               resolve();
             } else if (attempts >= maxAttempts) {
               // Only auto-approve after long timeout if trust mode is off and user hasn't interacted
@@ -429,6 +435,12 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           };
           checkApproval();
         });
+        
+        // Check if user rejected - if so, stop processing remaining chunks
+        if (get().isUserRejected) {
+          console.log('Tool execution stopped due to user rejection');
+          break; // Exit the loop, don't process any more chunks
+        }
       }
       
       // Delay before next chunk - reduce delay for auth/approval flows
@@ -444,8 +456,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       }
     }
     
-    // Complete the agent message
-    get().completeAgentMessage(threadId, messageId);
+    // Complete the agent message only if not rejected (rejection already completes it)
+    if (!get().isUserRejected) {
+      get().completeAgentMessage(threadId, messageId);
+    }
     
     // Handle orchestrator handoff if needed
     if (handoffTarget && mockAgents[handoffTarget as keyof typeof mockAgents]) {

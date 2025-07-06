@@ -34,7 +34,8 @@ export function ToolCall({ message, messageId, className }: ToolCallProps) {
     updateToolStatus,
     simulateToolExecution,
     setAuthenticated,
-    setUserApproved
+    setUserApproved,
+    rejectUserApproval
   } = useChatStore();
 
   if (message.type !== 'tool' || !message.data) return null;
@@ -100,9 +101,8 @@ export function ToolCall({ message, messageId, className }: ToolCallProps) {
   };
 
   const handleReject = () => {
-    // For now, just approve to let the stream continue
-    // TODO: Implement proper rejection handling
-    setUserApproved(false);
+    // Properly reject the tool call and unblock the UI
+    rejectUserApproval(messageId, safeToolCallId);
   };
 
   const canShowActions = safeStatus === 'waiting_for_authentication' || safeStatus === 'waiting_user_approval';
