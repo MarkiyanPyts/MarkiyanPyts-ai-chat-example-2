@@ -1,5 +1,5 @@
 import ReactMarkdown from 'react-markdown';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ToolCall } from './ToolCall';
@@ -133,13 +133,13 @@ export function AgentMessage({ message, className }: AgentMessageProps) {
 
               {/* Streaming indicator */}
               {message.status === 'streaming' && (
-                <div className="flex items-center space-x-2 mt-3 pt-3 border-t border-system-neutral-85">
+                <div className="flex items-center space-x-2 mt-3 pt-3 px-2 border-t border-system-neutral-85">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-allai-blue-50 rounded-full animate-pulse"></div>
                     <div className="w-2 h-2 bg-allai-blue-50 rounded-full animate-pulse delay-75"></div>
                     <div className="w-2 h-2 bg-allai-blue-50 rounded-full animate-pulse delay-150"></div>
                   </div>
-                  <span className="text-xs text-system-neutral-55">Agent is typing...</span>
+                  <span className="text-xs text-system-neutral-55 p-2">Agent is typing...</span>
                 </div>
               )}
             </Card>

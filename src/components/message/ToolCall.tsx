@@ -31,8 +31,6 @@ export function ToolCall({ message, messageId, className }: ToolCallProps) {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   
   const {
-    updateToolStatus,
-    simulateToolExecution,
     setAuthenticated,
     setUserApproved,
     rejectUserApproval

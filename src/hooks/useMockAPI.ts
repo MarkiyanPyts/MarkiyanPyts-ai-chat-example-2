@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import type { StreamMessage, AgentFunction } from '@/types';
+import type { AgentFunction } from '@/types';
 import { useChatStore } from '@/store';
 
 interface StreamRequest {
@@ -9,7 +9,6 @@ interface StreamRequest {
 
 // Mock API function that simulates streaming
 const simulateAgentStream = async ({ threadId, agentFunction }: StreamRequest): Promise<void> => {
-  const messages = agentFunction();
   const store = useChatStore.getState();
   
   // This will be handled by the store's simulateAgentStream method
@@ -21,8 +20,6 @@ export const useMockAPI = () => {
     mutationFn: simulateAgentStream,
     onError: (error) => {
       console.error('Agent stream error:', error);
-      // Reset blocked state on error
-      useChatStore.getState().setSendMessageBlocked(false);
     }
   });
 
