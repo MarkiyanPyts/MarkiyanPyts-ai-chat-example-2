@@ -92,8 +92,8 @@ export function AgentMessage({ message, className }: AgentMessageProps) {
 
           {/* Text Content */}
           {textContent && (
-            <Card className="p-4 bg-system-neutral-99 border-system-neutral-85 gap-0 py-0 overflow-hidden">
-              <div className="text-sm text-system-neutral-05 prose prose-sm max-w-none break-words overflow-hidden">
+            <Card className="bg-system-neutral-99 border-system-neutral-85 gap-0 py-0 overflow-hidden">
+              <div className="p-4 text-sm text-system-neutral-05 prose prose-sm max-w-none break-words overflow-hidden">
                 <ReactMarkdown 
                   components={{
                     p: ({ children }) => <p className="mb-3 last:mb-0 break-words overflow-hidden">{children}</p>,
