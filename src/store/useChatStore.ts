@@ -191,31 +191,36 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
   
   completeAgentMessage: (threadId: string, messageId: string) => {
-    set((state) => ({
-      threadCollection: {
-        threads: state.threadCollection.threads.map(thread =>
-          thread.id === threadId
-            ? {
-                ...thread,
-                messages: thread.messages.map(message =>
-                  message.id === messageId && message.type === "agent"
-                    ? {
-                        ...message as AgentMessage,
-                        status: "completed" as const,
-                        final_content: (message as AgentMessage).chunks
-                          .filter(chunk => chunk.type === "text")
-                          .map(chunk => chunk.response_delta)
-                          .join("")
-                      }
-                    : message
-                )
-              }
-            : thread
-        )
-      },
-      currentStreamingMessageId: null,
-      isSendMessageBlocked: false
-    }));
+    set((state) => {
+      // Only unblock UI if this is the currently streaming message
+      const shouldUnblock = state.currentStreamingMessageId === messageId;
+      
+      return {
+        threadCollection: {
+          threads: state.threadCollection.threads.map(thread =>
+            thread.id === threadId
+              ? {
+                  ...thread,
+                  messages: thread.messages.map(message =>
+                    message.id === messageId && message.type === "agent"
+                      ? {
+                          ...message as AgentMessage,
+                          status: "completed" as const,
+                          final_content: (message as AgentMessage).chunks
+                            .filter(chunk => chunk.type === "text")
+                            .map(chunk => chunk.response_delta)
+                            .join("")
+                        }
+                      : message
+                  )
+                }
+              : thread
+          )
+        },
+        currentStreamingMessageId: shouldUnblock ? null : state.currentStreamingMessageId,
+        isSendMessageBlocked: shouldUnblock ? false : state.isSendMessageBlocked
+      };
+    });
   },
   
   // UI actions
@@ -233,11 +238,19 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   
   // Authentication actions
   triggerAuthentication: (authenticationType: AuthenticationType) => {
-    set({
-      currentAuthenticationType: authenticationType,
-      showAuthModal: true,
-      isAuthenticated: false
-    });
+    const { isTrustModeActive } = get();
+    
+    if (isTrustModeActive) {
+      // Auto-authenticate if trust mode is active
+      set({ isAuthenticated: true });
+    } else {
+      // Show authentication modal
+      set({
+        currentAuthenticationType: authenticationType,
+        showAuthModal: true,
+        isAuthenticated: false
+      });
+    }
   },
   
   setAuthenticated: (authenticated: boolean) => {
@@ -349,8 +362,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     }));
     
     // Reset authentication and approval states for new stream
+    // But preserve authentication if trust mode is active
+    const { isTrustModeActive } = get();
     set({
-      isAuthenticated: false,
+      isAuthenticated: isTrustModeActive, // Keep authenticated if trust mode is on
       isUserApproved: false
     });
     
@@ -358,16 +373,31 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];
       
-      // Check for blocking statuses
+      // Add chunk to stream FIRST so it appears in UI
+      get().addStreamChunk(threadId, messageId, message);
+      
+      // Check for blocking statuses AFTER adding chunk
       if (message.status === "waiting_for_authentication") {
         get().triggerAuthentication(message.authenticationType!);
         
-        // Wait for authentication
+        // Wait for authentication with timeout
         await new Promise<void>((resolve) => {
+          let attempts = 0;
+          const maxAttempts = 600; // 60 seconds max wait (increased for user interaction)
+          
           const checkAuth = () => {
             if (get().isAuthenticated) {
               resolve();
+            } else if (attempts >= maxAttempts) {
+              // Only auto-authenticate after long timeout if trust mode is off and user hasn't interacted
+              const { isTrustModeActive, showAuthModal } = get();
+              if (!isTrustModeActive && !showAuthModal) {
+                console.warn('Authentication timeout - auto-authenticating');
+                get().setAuthenticated(true);
+              }
+              resolve();
             } else {
+              attempts++;
               setTimeout(checkAuth, 100);
             }
           };
@@ -376,12 +406,24 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       } else if (message.status === "waiting_user_approval" && message.data) {
         get().triggerUserApproval(message.data);
         
-        // Wait for user approval
+        // Wait for user approval with timeout
         await new Promise<void>((resolve) => {
+          let attempts = 0;
+          const maxAttempts = 600; // 60 seconds max wait (increased for user interaction)
+          
           const checkApproval = () => {
             if (get().isUserApproved) {
               resolve();
+            } else if (attempts >= maxAttempts) {
+              // Only auto-approve after long timeout if trust mode is off and user hasn't interacted
+              const { isTrustModeActive, showApprovalModal } = get();
+              if (!isTrustModeActive && !showApprovalModal) {
+                console.warn('Approval timeout - auto-approving');
+                get().setUserApproved(true);
+              }
+              resolve();
             } else {
+              attempts++;
               setTimeout(checkApproval, 100);
             }
           };
@@ -389,11 +431,14 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         });
       }
       
-      // Add chunk to stream
-      get().addStreamChunk(threadId, messageId, message);
+      // Delay before next chunk - reduce delay for auth/approval flows
+      let delay = message.type === "text" ? 200 : 4000;
       
-      // Delay before next chunk - 200ms for text (realistic typing), 4000ms for tools
-      const delay = message.type === "text" ? 200 : 4000;
+      // Use shorter delay for authentication/approval flows to improve UX
+      if (message.status === "waiting_for_authentication" || message.status === "waiting_user_approval") {
+        delay = 500; // Much shorter delay for interactive steps
+      }
+      
       if (i < messages.length - 1) {
         await new Promise(resolve => setTimeout(resolve, delay));
       }
@@ -407,9 +452,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       // Small delay before starting the handoff agent
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Start the specialized agent stream
+      // Start the specialized agent stream (without handoff target to prevent infinite recursion)
       const specializedAgentFunction = mockAgents[handoffTarget as keyof typeof mockAgents];
-      get().simulateAgentStream(threadId, specializedAgentFunction);
+      get().simulateAgentStream(threadId, specializedAgentFunction, null);
     }
   },
   

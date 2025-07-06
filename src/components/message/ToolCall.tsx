@@ -32,7 +32,9 @@ export function ToolCall({ message, messageId, className }: ToolCallProps) {
   
   const {
     updateToolStatus,
-    simulateToolExecution
+    simulateToolExecution,
+    setAuthenticated,
+    setUserApproved
   } = useChatStore();
 
   if (message.type !== 'tool' || !message.data) return null;
@@ -87,23 +89,20 @@ export function ToolCall({ message, messageId, className }: ToolCallProps) {
   };
 
   const handleAuthComplete = () => {
-    updateToolStatus(messageId, safeToolCallId, 'in_progress');
-    // Simulate tool execution after authentication
-    setTimeout(() => {
-      simulateToolExecution(messageId, safeToolCallId);
-    }, 1000);
+    // Set authentication state to let the streaming system continue
+    setAuthenticated(true);
+    setShowAuthPopup(false);
   };
 
   const handleApprove = () => {
-    updateToolStatus(messageId, safeToolCallId, 'in_progress');
-    // Simulate tool execution after approval
-    setTimeout(() => {
-      simulateToolExecution(messageId, safeToolCallId);
-    }, 1000);
+    // Set approval state to let the streaming system continue
+    setUserApproved(true);
   };
 
   const handleReject = () => {
-    updateToolStatus(messageId, safeToolCallId, 'user_rejected');
+    // For now, just approve to let the stream continue
+    // TODO: Implement proper rejection handling
+    setUserApproved(false);
   };
 
   const canShowActions = safeStatus === 'waiting_for_authentication' || safeStatus === 'waiting_user_approval';
