@@ -2,6 +2,8 @@ import { ThreadSidebar } from '@/components/thread/ThreadSidebar';
 import { ThreadHeader } from '@/components/thread/ThreadHeader';
 import { ThreadBody } from '@/components/thread/ThreadBody';
 import { SendMessage } from '@/components/message/SendMessage';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
 import { useChatStore } from '@/store';
 import { cn } from '@/lib/utils';
 
@@ -11,7 +13,7 @@ interface ChatLayoutProps {
 }
 
 export function ChatLayout({ threadId, className }: ChatLayoutProps) {
-  const { threadCollection, activeThreadId } = useChatStore();
+  const { threadCollection, activeThreadId, toggleSidebar } = useChatStore();
 
   const currentThreadId = threadId || activeThreadId;
   const currentThread = threadCollection.threads.find(t => t.id === currentThreadId);
@@ -38,8 +40,22 @@ export function ChatLayout({ threadId, className }: ChatLayoutProps) {
           </>
         ) : (
           /* Welcome Screen */
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center max-w-md mx-auto px-4">
+          <div className="flex-1 flex flex-col">
+            {/* Mobile Hamburger Menu for Welcome Screen */}
+            <div className="md:hidden flex items-center justify-start p-4 border-b border-system-neutral-85">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleSidebar}
+                className="text-system-neutral-55 hover:text-system-neutral-35"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            {/* Welcome Content */}
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center max-w-md mx-auto px-4">
               <div className="w-24 h-24 bg-allai-blue-90 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-4xl">🤖</span>
               </div>
@@ -117,6 +133,7 @@ export function ChatLayout({ threadId, className }: ChatLayoutProps) {
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           </div>

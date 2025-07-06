@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Edit3, Trash2, Settings, Shield, ShieldCheck, Menu } from 'lucide-react';
+import { Edit3, Trash2, Shield, ShieldCheck, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -61,34 +61,43 @@ export function ThreadHeader({ thread, onDelete, className }: ThreadHeaderProps)
 
   return (
     <Card className={cn("border-b border-system-neutral-85 rounded-none", className)}>
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center space-x-4 flex-1">
-          {/* Mobile Hamburger Menu */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleSidebar}
-            className="md:hidden text-system-neutral-55 hover:text-system-neutral-35"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-          {/* Thread Name */}
-          <div className="flex-1">
-            {isEditing ? (
-              <Input
-                value={editingName}
-                onChange={(e) => setEditingName(e.target.value)}
-                onKeyDown={handleKeyPress}
-                onBlur={handleSaveEdit}
-                className="text-lg font-semibold bg-transparent border-system-neutral-85"
-                autoFocus
-              />
-            ) : (
-              <h1 className="text-lg font-semibold text-system-neutral-05">
-                {thread.name}
-              </h1>
-            )}
-            <div className="flex items-center space-x-4 mt-1">
+      <div className="p-4">
+        {/* Top Row: Hamburger + Thread Name + Desktop Actions */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4 flex-1 min-w-0">
+            {/* Mobile Hamburger Menu */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleSidebar}
+              className="md:hidden text-system-neutral-55 hover:text-system-neutral-35 flex-shrink-0"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            
+            {/* Thread Name */}
+            <div className="flex-1 min-w-0">
+              {isEditing ? (
+                <Input
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  onBlur={handleSaveEdit}
+                  className="text-lg font-semibold bg-transparent border-system-neutral-85"
+                  autoFocus
+                />
+              ) : (
+                <h1 className="text-lg font-semibold text-system-neutral-05 truncate">
+                  {thread.name}
+                </h1>
+              )}
+            </div>
+          </div>
+
+          {/* Desktop Thread Info + Actions (hidden on mobile) */}
+          <div className="hidden md:flex items-center space-x-4">
+            {/* Thread Info */}
+            <div className="flex items-center space-x-4">
               <p className="text-sm text-system-neutral-55">
                 {thread.messages.length} messages
               </p>
@@ -103,54 +112,121 @@ export function ThreadHeader({ thread, onDelete, className }: ThreadHeaderProps)
                 </Badge>
               )}
             </div>
+
+            {/* Desktop Actions */}
+            <div className="flex items-center space-x-2">
+              {/* Trust Mode Toggle */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleTrustMode}
+                className={cn(
+                  "flex items-center space-x-2",
+                  isTrustModeActive
+                    ? "text-fluor-green-30 hover:text-fluor-green-40"
+                    : "text-system-neutral-55 hover:text-system-neutral-35"
+                )}
+                title={isTrustModeActive ? "Trust Mode: ON - Auto-approve tool calls" : "Trust Mode: OFF - Manual approval required"}
+              >
+                {isTrustModeActive ? (
+                  <ShieldCheck className="h-4 w-4" />
+                ) : (
+                  <Shield className="h-4 w-4" />
+                )}
+                <span className="text-xs font-medium">
+                  {isTrustModeActive ? "Trusted" : "Manual"}
+                </span>
+              </Button>
+
+              {/* Edit Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleStartEdit}
+                disabled={isEditing}
+                className="text-system-neutral-55 hover:text-system-neutral-35"
+              >
+                <Edit3 className="h-4 w-4" />
+              </Button>
+
+              {/* Delete Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDelete}
+                className="text-flamingo-rose-50 hover:text-flamingo-rose-60"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center space-x-2">
-          {/* Trust Mode Toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleTrustMode}
-            className={cn(
-              "flex items-center space-x-2",
-              isTrustModeActive
-                ? "text-fluor-green-30 hover:text-fluor-green-40"
-                : "text-system-neutral-55 hover:text-system-neutral-35"
+        {/* Second Row: Thread Info + Mobile Actions (mobile only) */}
+        <div className="flex md:hidden items-center justify-between mt-3">
+          {/* Thread Info */}
+          <div className="flex items-center space-x-4 flex-wrap">
+            <p className="text-sm text-system-neutral-55">
+              {thread.messages.length} messages
+            </p>
+            {thread.updated_at && (
+              <p className="text-sm text-system-neutral-35">
+                Updated {new Date(thread.updated_at).toLocaleString()}
+              </p>
             )}
-            title={isTrustModeActive ? "Trust Mode: ON - Auto-approve tool calls" : "Trust Mode: OFF - Manual approval required"}
-          >
-            {isTrustModeActive ? (
-              <ShieldCheck className="h-4 w-4" />
-            ) : (
-              <Shield className="h-4 w-4" />
+            {isSendMessageBlocked && (
+              <Badge variant="secondary" className="bg-light-orange-70 text-light-orange-40">
+                Agent Processing...
+              </Badge>
             )}
-            <span className="text-xs font-medium">
-              {isTrustModeActive ? "Trusted" : "Manual"}
-            </span>
-          </Button>
+          </div>
 
-          {/* Edit Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleStartEdit}
-            disabled={isEditing}
-            className="text-system-neutral-55 hover:text-system-neutral-35"
-          >
-            <Edit3 className="h-4 w-4" />
-          </Button>
+          {/* Mobile Actions (visible only on mobile) */}
+          <div className="flex md:hidden items-center space-x-2">
+            {/* Trust Mode Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTrustMode}
+              className={cn(
+                "flex items-center space-x-1",
+                isTrustModeActive
+                  ? "text-fluor-green-30 hover:text-fluor-green-40"
+                  : "text-system-neutral-55 hover:text-system-neutral-35"
+              )}
+              title={isTrustModeActive ? "Trust Mode: ON - Auto-approve tool calls" : "Trust Mode: OFF - Manual approval required"}
+            >
+              {isTrustModeActive ? (
+                <ShieldCheck className="h-4 w-4" />
+              ) : (
+                <Shield className="h-4 w-4" />
+              )}
+              <span className="text-xs font-medium">
+                {isTrustModeActive ? "Trusted" : "Manual"}
+              </span>
+            </Button>
 
-          {/* Delete Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDelete}
-            className="text-flamingo-rose-50 hover:text-flamingo-rose-60"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            {/* Edit Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleStartEdit}
+              disabled={isEditing}
+              className="text-system-neutral-55 hover:text-system-neutral-35"
+            >
+              <Edit3 className="h-4 w-4" />
+            </Button>
+
+            {/* Delete Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDelete}
+              className="text-flamingo-rose-50 hover:text-flamingo-rose-60"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </Card>
