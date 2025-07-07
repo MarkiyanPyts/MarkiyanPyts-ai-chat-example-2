@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 import { v4 as uuid } from 'uuid';
 import type { 
   ThreadCollection, 
@@ -70,7 +71,9 @@ export interface ChatStore {
   simulateToolExecution: (messageId: string, toolCallId: string) => void;
 }
 
-export const useChatStore = create<ChatStore>((set, get) => ({
+export const useChatStore = create<ChatStore>()(
+  devtools(
+    (set, get) => ({
   // Initial state
   threadCollection: { threads: [] },
   activeThreadId: null,
@@ -531,4 +534,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       get().updateToolStatus(messageId, toolCallId, finalStatus);
     }, 2000 + Math.random() * 3000); // 2-5 second execution time
   }
-}));
+}),
+    {
+      name: 'chat-store'
+    }
+  )
+);
